@@ -1,4 +1,6 @@
-const HoseDiameters =
+class EngineeringCard
+{
+	static #HoseDiameters =
 	[
 		{ value: 1.75, description: "1 3/4\""},
 		{ value: 2.5, description: "2 1/2\""},
@@ -6,7 +8,7 @@ const HoseDiameters =
 		{ value: 5, description: "5\""}
 	];
 
-const hoseFrictionLossTables =
+	static #HoseFrictionLossTables =
 	[
 		{
 			diameter: 1.75,
@@ -84,7 +86,11 @@ const hoseFrictionLossTables =
 				return ((2 * Q * Q) + Q) * .031;
 			}
 		},
-	];
+	];	
+
+	static get HoseDiameters() { return #HoseDiameters; }
+	static get HoseFrictionLossTables() { return this.#HoseFrictionLossTables; }
+}
 
 class Hose
 {
@@ -103,7 +109,7 @@ class Hose
 		
 		this.#length = length;
 		this.#diameter = hoseDiameter;
-		this.#frictionLossTable = hoseFrictionLossTables.find((frictionLossTable) => frictionLossTable.diameter === diameter);
+		this.#frictionLossTable = HoseFrictionLossTables.find((frictionLossTable) => frictionLossTable.diameter === diameter);
 	}
 	
 	get diameter() { return this.#diameter; }
@@ -118,6 +124,10 @@ class Hose
 			return precalculatedValue.frictionLossPer100ft * this.#length / 100;
 	}
 }
+
+
+
+
 
 
 /*
@@ -186,4 +196,4 @@ const nozzles =
 	];
 */
 
-export { HoseDiameters, Hose };
+export { EngineeringCard, Hose };
