@@ -1,5 +1,6 @@
 import { ComponentTypes } from "./engineeringCard";
 import { GEVFC_ConfigurationsGroups } from "./hoseConfigurations";
+import { FormatType } from "./UI";
 
 
 const Version = "1.0";
@@ -46,7 +47,7 @@ class QuizApp
 	{
 		this.#UI_Class = UI_Class;
 		this.#currentQuiz = new Quiz(GEVFC_ConfigurationsGroups.find((configurationSet) => configurationSet.id === "GEVFC_BASE_CONFIGURATIONS"));
-		this.#UI = new this.#UI_Class(`[[b;white;]Welcome to Hose Quiz, version ${Version}.]`);
+		this.#UI = new this.#UI_Class(`Welcome to Hose Quiz, version ${Version}.`);
 	} // end QuizApp constructor
 
 
@@ -79,7 +80,7 @@ class QuizApp
 
 	async #offerQuiz(quiz)
 	{
-		this.#UI.writeLine(`\n\n[[b;teal;]Starting Quiz: ${this.#currentQuiz.description}]\n`);
+		this.#UI.writeLine(`\n\nStarting Quiz: ${this.#currentQuiz.description}\n`, [FormatType.Bold], "teal");
 		while (true)
 		{
 			let quizProblem = this.#currentQuiz.getProblem();

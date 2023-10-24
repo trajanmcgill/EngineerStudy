@@ -1,3 +1,6 @@
+import { FormatType } from "./UI";
+
+
 class CLI
 {
 	#terminal;
@@ -9,7 +12,7 @@ class CLI
 	{
 		//let thisObject = this;
 		//let initFunction = this.#initializeCLI;
-		this.#initializeCLI(greetingText, readyFunction);
+		this.#initializeCLI(`[[b;white;]${greetingText}]`, readyFunction);
 		//$(function() { initFunction.call(thisObject, greetingText, readyFunction); });
 	}
 
@@ -48,9 +51,34 @@ class CLI
 	}
 
 
-	writeLine(text)
+	writeLine(text, formattingArray, textColor, backgroundColor)
 	{
-		this.#terminal.echo(text);
+		let formatString = "";
+		if (formattingArray !== undefined)
+		{
+			for (const formattingElement of formattingArray)
+			{
+				if (formattingElement === FormatType.Bold)
+					formatString += "b";
+				else if (formattingElement === FormatType.Glow)
+					formatString += "g";
+				else if (formattingElement === FormatType.Italic)
+					formatString += "i";
+				else if (formattingElement === FormatType.Strikethrough)
+					formatString += "s";
+				else if (formattingElement === FormatType.Underline)
+					formatString += "u";
+			}
+		}
+
+		let prefix = "", postfix = "";
+		if (formattingArray !== undefined || textColor !== undefined || backgroundColor !== undefined)
+		{
+			prefix = `[[${formatString};${textColor};${backgroundColor}]`;
+			postfix = "]";
+		}
+
+		this.#terminal.echo(prefix + text + postfix);
 	}
 
 }
