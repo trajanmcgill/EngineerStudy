@@ -82,7 +82,7 @@ const GEVFC_ConfigurationsGroups = Object.freeze(
 		Object.freeze(
 			[
 				new HoseConfiguration(
-					"1 3/4 crosslay (ground floor)",
+					"1 3/4\" crosslay to ground floor",
 					[
 						new Nozzle(
 							{
@@ -91,8 +91,9 @@ const GEVFC_ConfigurationsGroups = Object.freeze(
 							}),
 						new Hose(1.75, 200)
 					]),
+				
 				new HoseConfiguration(
-					"2 1/2 crosslay (ground floor)",
+					"2 1/2\" crosslay to ground floor",
 					[
 						new Nozzle(
 							{
@@ -101,7 +102,29 @@ const GEVFC_ConfigurationsGroups = Object.freeze(
 							}),
 						new Hose(2.5, 200)
 					]),
-				]))
+
+					new HoseConfiguration(
+						"1 3/4\" skid load with 0\' of 3\", to ground floor",
+						[
+							new Nozzle(
+								{
+									nozzleType: Nozzle.Types.HandFogLowPressure,
+									diameter: 1.5
+								}),
+							new Hose(1.75, 150)
+						]),
+
+					new HoseConfiguration(
+						"2 1/2\" skid load with default tip and 0\' of 3\", to ground floor",
+						[
+							new Nozzle(
+								{
+									nozzleType: Nozzle.Types.HandSmooth,
+									diameter: 1 + 1/8
+								}),
+							new Hose(2.5, 150)
+						])
+			]))
 ]);
 
 

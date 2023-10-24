@@ -109,12 +109,14 @@ const Nozzle = (function()
 			this.#diameter = nozzleDefinition.diameter;
 			this.#identifier = nozzleDefinition.identifier;
 
-			if (this.#identifier !== undefined)
+			if (this.#nozzleType.flowRate !== undefined)
+				this.#flowRateFunction = () => this.#nozzleType.flowRate;
+			else if (this.#identifier !== undefined)
 				this.#flowRateFunction = () => this.#nozzleType.flowRates.find((flowRate) => flowRate.identifier === this.#identifier).flowRate;
 			else if (this.#diameter !== undefined)
 				this.#flowRateFunction = () => this.#nozzleType.flowRates.find((flowRate) => flowRate.diameter === this.#diameter).flowRate;
 			else
-				this.#flowRateFunction = () => this.#nozzleType.flowRate;
+				throw new Error("Unable to determine flow rate.");
 		}
 
 		static get Types() { return NozzleTypes; }
