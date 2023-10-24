@@ -1,4 +1,3 @@
-import { ComponentTypes } from "./engineeringCard";
 import { GEVFC_ConfigurationsGroups } from "./hoseConfigurations";
 import { FormatType } from "./UI";
 
