@@ -28,44 +28,50 @@ class EvaluationResult
 }
 
 
+class Question
+{
+	#prompt;
+	#answer;
+
+	constructor(prompt, answer)
+	{
+		this.#prompt = prompt;
+		this.#answer = answer;
+	}
+
+	get prompt() { return this.#prompt; }
+	get answer() { return this.#answer; }
+}
+
+
 class Quiz
 {
-	#questionSet;
+	#problemSet;
 
 
-	constructor(questionSet)
-	{ this.#questionSet = questionSet; }
+	constructor(problemSet)
+	{ this.#problemSet = problemSet; }
 
 
 	get description()
-	{ return this.#questionSet.description; }
+	{ return this.#problemSet.description; }
 
 
 	getProblem()
 	{
 		// Choose at random a configuration from the question set.
-		let allConfigurations = this.#questionSet.configurations;
+		let allConfigurations = this.#problemSet.configurations;
 		let problemConfiguration = allConfigurations[Math.floor(Math.random() * allConfigurations.length)];
 
-		// Return the question and the answer-checking function for this configuration.
+		// Return the questions and answers for this configuration.
 		let problemDefinition =
 		{
-			question: `Total pressure for ${problemConfiguration.description}:`,
-			answerEvaluator: function (userAnswer)
-			{
-				let floatAnswer = Number.parseFloat(userAnswer);
-				let correctAnswer = problemConfiguration.totalPressure;
-				let result;
-
-				if (floatAnswer === correctAnswer)
-					result = EvaluationResultType.Correct_Exact;
-				else if ((correctAnswer % 1 !== 0) && (floatAnswer % 1 === 0) && (Math.abs(floatAnswer - correctAnswer) <= 0.5))
-					result = EvaluationResultType.Correct_Rounded;
-				else
-					result = EvaluationResultType.Incorrect;
-
-				return new EvaluationResult(result, correctAnswer);
-			}
+			scenario: problemConfiguration.description,
+			questions:
+			[
+				new Question("Flow rate (gallons per minute)", problemConfiguration.flowRate),
+				new Question("Total pressure (p.s.i.)", problemConfiguration.totalPressure)
+			]
 		};
 		return problemDefinition;
 	}
@@ -94,25 +100,50 @@ class QuizApp
 	}
 
 
-	#askQuestion(quizProblem)
+	async #askQuestion(question, showExpectedAnswer, moveOnEvenIfIncorrect)
 	{
-		let thisObject = this;
-		let checkAnswer = this.#checkAnswer;
-		return this.#UI.getInput(quizProblem.question)
-			.then((userAnswer) => checkAnswer.call(thisObject, quizProblem, userAnswer));
+		let answeredCorrectly = false;
+
+		do
+		{
+			let userAnswer = await this.#UI.getInput(question.prompt);
+			let evaluationResult = this.#checkAnswer(question, userAnswer);
+
+			if (evaluationResult.resultType === EvaluationResultType.Correct_Exact)
+			{
+				this.#UI.writeLine("Correct!");
+				answeredCorrectly = true;
+			}
+			else if (evaluationResult.resultType === EvaluationResultType.Correct_Rounded)
+			{
+				this.#UI.writeLine(`Correct (rounded from ${evaluationResult.correctAnswer})`);
+				answeredCorrectly = true;
+			}
+			else
+			{
+				let answerDisplayString = showExpectedAnswer ? ` Expected answer: ${evaluationResult.correctAnswer}.` : "";
+				this.#UI.writeLine(`Incorrect.${answerDisplayString}`);
+			}
+			this.#UI.writeLine("");
+
+		} while (!answeredCorrectly && !moveOnEvenIfIncorrect);
 	}
 	
 	
-	#checkAnswer(quizProblem, userAnswer)
+	#checkAnswer(question, userAnswer)
 	{
-		let evaluationResult = quizProblem.answerEvaluator(userAnswer);
-		if (evaluationResult.resultType === EvaluationResultType.Correct_Exact)
-			this.#UI.writeLine("Correct!");
-		else if (evaluationResult.resultType === EvaluationResultType.Correct_Rounded)
-			this.#UI.writeLine(`Correct (rounded from ${evaluationResult.correctAnswer})`);
+		let floatAnswer = Number.parseFloat(userAnswer);
+		let correctAnswer = question.answer;
+		let result;
+
+		if (floatAnswer === correctAnswer)
+			result = EvaluationResultType.Correct_Exact;
+		else if ((correctAnswer % 1 !== 0) && (floatAnswer % 1 === 0) && (Math.abs(floatAnswer - correctAnswer) <= 0.5))
+			result = EvaluationResultType.Correct_Rounded;
 		else
-			this.#UI.writeLine(`Incorrect. Expected answer: ${evaluationResult.correctAnswer}.`);
-		this.#UI.writeLine("");
+			result = EvaluationResultType.Incorrect;
+
+		return new EvaluationResult(result, correctAnswer);
 	}
 
 
@@ -121,7 +152,10 @@ class QuizApp
 		this.#UI.writeLine(`\n\nStarting Quiz: ${this.#currentQuiz.description}\n`, new TextFormat({ textStyles: [FormatType.Bold], textColor: "teal"}));
 		while (true)
 		{
-			await this.#askQuestion(this.#currentQuiz.getProblem());
+			let problem = this.#currentQuiz.getProblem();
+			this.#UI.writeLine(problem.scenario);
+			for (const question of problem.questions)
+				await this.#askQuestion(question, false);
 		}
 	}
 } // end class QuizApp
