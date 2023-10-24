@@ -2,11 +2,10 @@ const ComponentTypes = (function()
 {
 	return Object.freeze(
 	{
-		Nozzle: 1,
-		Hose: 2,
-		Pipe: 3,
-		Appliance: 4,
-		Adapter: 5
+		Nozzle: "Nozzle",
+		Hose: "Hose",
+		IntermediateAppliance: "IntermediateAppliance",
+		Elevation: "Elevation"
 	});
 })(); // end ComponentTypes enum definition
 
@@ -15,7 +14,7 @@ const Nozzle = (function()
 {
 	const NozzleTypes = Object.freeze(
 	{
-		HandSmooth:
+		HandSmooth: Object.freeze(
 		{
 			description: "Smoothbore (hand line)",
 			nozzlePressure: 50,
@@ -26,14 +25,14 @@ const Nozzle = (function()
 				{ diameter: 1+1/8, flowRate: 250 },
 				{ diameter: 1+1/4, flowRate: 300 }
 			])
-		},
-		HandFogConventional_TrashLine:
+		}),
+		HandFogConventional_TrashLine: Object.freeze(
 		{
 			description: "Fog nozzle (hand line, conventional, GEVFC trash line setting)",
 			nozzlePressure: 100,
 			flowRates: Object.freeze([{ diameter: 1+1/2, flowRate: 125 }])
-		},
-		HandFogLowPressure:
+		}),
+		HandFogLowPressure: Object.freeze(
 		{
 			description: "Fog nozzle (hand line, low pressure)",
 			nozzlePressure: 75,
@@ -42,8 +41,8 @@ const Nozzle = (function()
 				{ diameter: 1+1/2, flowRate: 150},
 				{ diameter: 2+1/2, flowRate: 250}
 			])
-		},
-		MasterSmooth:
+		}),
+		MasterSmooth: Object.freeze(
 		{
 			description: "Smooth bore (master stream)",
 			nozzlePressure: 80,
@@ -55,20 +54,20 @@ const Nozzle = (function()
 				{ diameter: 1+3/4, flowRate: 800 },
 				{ diameter: 2, flowRate: 1000 }
 			])
-		},
-		MasterSmoothReducedPressure:
+		}),
+		MasterSmoothReducedPressure: Object.freeze(
 		{
 			description: "Smooth bore (master stream, reduced pressure)",
 			nozzlePressure: 50,
 			flowRates: Object.freeze([{ diameter: 1+1/2, flowRate: 500 }])
-		},
-		MasterFog:
+		}),
+		MasterFog: Object.freeze(
 		{
 			description: "Fog nozzle (master stream)",
 			nozzlePressure: 100,
 			flowRate: 1000
-		},
-		Cellar:
+		}),
+		Cellar: Object.freeze(
 		{
 			description: "Cellar nozzle",
 			nozzlePressure: 100,
@@ -78,7 +77,7 @@ const Nozzle = (function()
 				{ identifier: "E61", flowRate: 400 },
 				{ identifier: "E62", flowRate: 500 }
 			])
-		},
+		}),
 		/*
 		Piercing:
 		{
@@ -86,13 +85,14 @@ const Nozzle = (function()
 			nozzlePressure: 100
 		},
 		*/
-		FoamEductor:
+		FoamEductor: Object.freeze(
 		{
 			description: "Foam eductor",
 			nozzlePressure: 200,
 			flowRate: 125
-		}
-	});
+		})
+	}); // end NozzleTypes definition
+
 
 	class Nozzle
 	{
@@ -124,10 +124,10 @@ const Nozzle = (function()
 		get description() { return this.#nozzleType.description; }
 		get flowRate() { return this.#flowRateFunction(); }
 		get pressure() { return this.#nozzleType.nozzlePressure; }
-	}
+	} // end class Nozzle
 
 	return Object.freeze(Nozzle);
-})(); // end Nozzle class definition
+})(); // end Nozzle class generation code
 
 
 const Hose = (function()
@@ -210,7 +210,8 @@ const Hose = (function()
 				return ((2 * Q * Q) + Q) * .031;
 			}
 		},
-	];
+	]; // end HoseFrictionLossTables array
+
 
 	class Hose
 	{
@@ -243,27 +244,7 @@ const Hose = (function()
 	} // end class Hose
 
 	return Object.freeze(Hose);
-})(); // end Hose class definition
+})(); // end Hose class definition and generation code
 
 
-const BasicSetups = (function ()
-{
-	return Object.freeze(
-	[
-		Object.freeze(
-		{
-			description: "1 3/4 crosslay (ground floor)",
-			components: Object.freeze(
-			[
-				new Nozzle(
-					{
-						nozzleType: Nozzle.Types.HandFogLowPressure,
-						diameter: 1.5
-					}),
-				new Hose(1+3/4, 200)
-			])
-		})
-	]);
-})(); // end BasicSetups array definition
-
-export { ComponentTypes, Nozzle, Hose, BasicSetups };
+export { ComponentTypes, Nozzle, Hose };

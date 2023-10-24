@@ -4,6 +4,25 @@ class CLI
 	#parseFunction = null;
 	#failureFunction = null;
 
+
+	constructor(greetingText, readyFunction)
+	{
+		//let thisObject = this;
+		//let initFunction = this.#initializeCLI;
+		this.#initializeCLI(greetingText, readyFunction);
+		//$(function() { initFunction.call(thisObject, greetingText, readyFunction); });
+	}
+
+	
+	#initializeCLI(greetingText)
+	{
+		let processInput = (command) => { this.#processInput(command); };
+		this.#terminal = $("#Terminal").terminal(
+			(command) => { processInput(command); },
+			{ greetings: greetingText });
+	}
+
+
 	#startRead(parseFunction, failureFunction)
 	{
 		this.#parseFunction = parseFunction;
@@ -11,7 +30,15 @@ class CLI
 		this.#terminal.enable();
 	}
 
-	readLine(userPrompt)
+
+	#processInput(command)
+	{
+		if (this.#parseFunction !== null)
+			this.#parseFunction(command);
+	}
+
+
+	getInput(userPrompt)
 	{
 		let thisObject = this;
 		let startRead = this.#startRead;
@@ -20,37 +47,12 @@ class CLI
 		return new Promise((resolveFunc, rejectFunc) => { startRead.call(thisObject, resolveFunc, rejectFunc); });
 	}
 
+
 	writeLine(text)
 	{
 		this.#terminal.echo(text);
 	}
 
-	#processInput(command)
-	{
-		if (this.#parseFunction !== null)
-			this.#parseFunction(command);
-	}
-
-	#initializeCLI(greetingText, shellManager)
-	{
-		let processInput = (command) => { this.#processInput(command); };
-		this.#terminal = $("#Terminal").terminal(
-			function(command)
-			{
-				processInput(command);
-			},
-			{
-				greetings: greetingText
-			});
-		shellManager();
-	}
-
-	constructor(greetingText, readyFunction)
-	{
-		let thisObject = this;
-		let initFunction = this.#initializeCLI;
-		$(function() { initFunction.call(thisObject, greetingText, readyFunction); });
-	}
 }
 
 export { CLI };
