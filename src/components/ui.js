@@ -8,4 +8,24 @@ const FormatType = Object.freeze(
 	Glow: "Glow"
 });
 
-export { FormatType };
+
+class TextFormat
+{
+	#textStyles;
+	#textColor;
+	#backgroundColor;
+
+	constructor(formattingDefinition)
+	{
+		this.#textStyles = formattingDefinition.textStyles ?? [];
+		this.#textColor = formattingDefinition.textColor ?? "";
+		this.#backgroundColor = formattingDefinition.backgroundColor ?? "";
+	}
+
+	get textStyles() { return this.#textStyles; }
+	get textColor() { return this.#textColor; }
+	get backgroundColor() { return this.#backgroundColor; }
+}
+
+
+export { FormatType, TextFormat };

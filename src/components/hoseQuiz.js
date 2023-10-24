@@ -1,5 +1,5 @@
 import { GEVFC_ConfigurationsGroups } from "./hoseConfigurations";
-import { FormatType } from "./UI";
+import { FormatType, TextFormat } from "./UI";
 
 
 const Version = "1.0";
@@ -68,7 +68,6 @@ class QuizApp
 	
 	#checkAnswer(userAnswer, evaluator)
 	{
-		this.#UI.writeLine(`Your answer was: ${userAnswer}`);
 		if (evaluator(userAnswer))
 			this.#UI.writeLine("CORRECT!");
 		else
@@ -79,7 +78,7 @@ class QuizApp
 
 	async #offerQuiz(quiz)
 	{
-		this.#UI.writeLine(`\n\nStarting Quiz: ${this.#currentQuiz.description}\n`, [FormatType.Bold], "teal");
+		this.#UI.writeLine(`\n\nStarting Quiz: ${this.#currentQuiz.description}\n`, new TextFormat({ textStyles: [FormatType.Bold], textColor: "teal"}));
 		while (true)
 		{
 			let quizProblem = this.#currentQuiz.getProblem();

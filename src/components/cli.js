@@ -51,30 +51,27 @@ class CLI
 	}
 
 
-	writeLine(text, formattingArray, textColor, backgroundColor)
+	writeLine(text, formattingObject)
 	{
-		let formatString = "";
-		if (formattingArray !== undefined)
+		let prefix = "", postfix = "";
+		if (formattingObject !== undefined)
 		{
-			for (const formattingElement of formattingArray)
+			let formatString = "";
+			for (const style of formattingObject.textStyles)
 			{
-				if (formattingElement === FormatType.Bold)
+				if (style === FormatType.Bold)
 					formatString += "b";
-				else if (formattingElement === FormatType.Glow)
+				else if (style === FormatType.Glow)
 					formatString += "g";
-				else if (formattingElement === FormatType.Italic)
+				else if (style === FormatType.Italic)
 					formatString += "i";
-				else if (formattingElement === FormatType.Strikethrough)
+				else if (style === FormatType.Strikethrough)
 					formatString += "s";
-				else if (formattingElement === FormatType.Underline)
+				else if (style === FormatType.Underline)
 					formatString += "u";
 			}
-		}
 
-		let prefix = "", postfix = "";
-		if (formattingArray !== undefined || textColor !== undefined || backgroundColor !== undefined)
-		{
-			prefix = `[[${formatString};${textColor};${backgroundColor}]`;
+			prefix = `[[${formatString};${formattingObject.textColor};${formattingObject.backgroundColor}]`;
 			postfix = "]";
 		}
 
