@@ -1,19 +1,16 @@
-import { FormatType } from "./UI";
+import { UserPromptTypes, FormatTypes } from "./UI";
 
 
 class CLI
 {
 	#terminal;
-	#parseFunction = null;
-	#failureFunction = null;
+	#readResolveFunc = null;
+	#readFailureFunc = null;
 
 
 	constructor(greetingText, readyFunction)
 	{
-		//let thisObject = this;
-		//let initFunction = this.#initializeCLI;
 		this.#initializeCLI(`[[b;white;]${greetingText}]`, readyFunction);
-		//$(function() { initFunction.call(thisObject, greetingText, readyFunction); });
 	}
 
 	
@@ -26,28 +23,45 @@ class CLI
 	}
 
 
-	#startRead(parseFunction, failureFunction)
+	#startRead(readResolveFunc, readFailureFunc)
 	{
-		this.#parseFunction = parseFunction;
-		this.#failureFunction = failureFunction;
+		this.#readResolveFunc = readResolveFunc;
+		this.#readFailureFunc = readFailureFunc;
 		this.#terminal.enable();
 	}
 
 
 	#processInput(command)
 	{
-		if (this.#parseFunction !== null)
-			this.#parseFunction(command);
+		// Resolve the promise that was created in getInput()
+		this.#clearCustomPrompt();
+		if (this.#readResolveFunc !== null)
+			this.#readResolveFunc(command);
 	}
 
 
-	getInput(userPrompt)
+	#clearCustomPrompt()
+	{
+		this.#terminal.set_prompt("> ");
+	}
+
+
+	getInput(userPrompt, promptType)
 	{
 		let thisObject = this;
 		let startRead = this.#startRead;
 		if (userPrompt !== undefined && userPrompt !== null)
-			this.writeLine(userPrompt);
-		return new Promise((resolveFunc, rejectFunc) => { startRead.call(thisObject, resolveFunc, rejectFunc); });
+		{
+			if (promptType === undefined || promptType === UserPromptTypes.Primary)
+				this.writeLine(userPrompt);
+			else
+				this.#terminal.set_prompt(`${userPrompt}> `);
+		}
+		return new Promise(
+			(resolveFunc, rejectFunc) =>
+			{
+				startRead.call(thisObject, resolveFunc, rejectFunc);
+			});
 	}
 
 
@@ -59,15 +73,15 @@ class CLI
 			let formatString = "";
 			for (const style of formattingObject.textStyles)
 			{
-				if (style === FormatType.Bold)
+				if (style === FormatTypes.Bold)
 					formatString += "b";
-				else if (style === FormatType.Glow)
+				else if (style === FormatTypes.Glow)
 					formatString += "g";
-				else if (style === FormatType.Italic)
+				else if (style === FormatTypes.Italic)
 					formatString += "i";
-				else if (style === FormatType.Strikethrough)
+				else if (style === FormatTypes.Strikethrough)
 					formatString += "s";
-				else if (style === FormatType.Underline)
+				else if (style === FormatTypes.Underline)
 					formatString += "u";
 			}
 

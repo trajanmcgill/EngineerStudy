@@ -1,5 +1,5 @@
 import { GEVFC_ConfigurationsGroups } from "./hoseConfigurations";
-import { FormatType, TextFormat } from "./UI";
+import { UserPromptTypes, FormatTypes, TextFormat } from "./UI";
 
 
 const Version = "1.0";
@@ -106,7 +106,7 @@ class QuizApp
 
 		do
 		{
-			let userAnswer = await this.#UI.getInput(question.prompt);
+			let userAnswer = await this.#UI.getInput(question.prompt, UserPromptTypes.Secondary);
 			let evaluationResult = this.#checkAnswer(question, userAnswer);
 
 			if (evaluationResult.resultType === EvaluationResultType.Correct_Exact)
@@ -124,7 +124,6 @@ class QuizApp
 				let answerDisplayString = showExpectedAnswer ? ` Expected answer: ${evaluationResult.correctAnswer}.` : "";
 				this.#UI.writeLine(`Incorrect.${answerDisplayString}`);
 			}
-			this.#UI.writeLine("");
 
 		} while (!answeredCorrectly && !moveOnEvenIfIncorrect);
 	}
@@ -149,13 +148,13 @@ class QuizApp
 
 	async #offerQuiz(quiz)
 	{
-		this.#UI.writeLine(`\n\nStarting Quiz: ${this.#currentQuiz.description}\n`, new TextFormat({ textStyles: [FormatType.Bold], textColor: "teal"}));
+		this.#UI.writeLine(`\n\nStarting Quiz: ${this.#currentQuiz.description}\n`, new TextFormat({ textStyles: [FormatTypes.Bold, FormatTypes.Underline], textColor: "teal"}));
 		while (true)
 		{
 			let problem = this.#currentQuiz.getProblem();
-			this.#UI.writeLine(problem.scenario);
+			this.#UI.writeLine(`\nScenario: ${problem.scenario}`, new TextFormat({ textStyles: [FormatTypes.Bold], textColor: "cyan" }));
 			for (const question of problem.questions)
-				await this.#askQuestion(question, false);
+				await this.#askQuestion(question, false, false);
 		}
 	}
 } // end class QuizApp

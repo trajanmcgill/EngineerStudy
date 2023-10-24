@@ -1,4 +1,11 @@
-const FormatType = Object.freeze(
+const UserPromptTypes = Object.freeze(
+{
+	Primary: "Primary",
+	Secondary: "Secondary"
+});
+
+
+const FormatTypes = Object.freeze(
 {
 	Regular: "Regular",
 	Bold: "Bold",
@@ -28,4 +35,4 @@ class TextFormat
 }
 
 
-export { FormatType, TextFormat };
+export { UserPromptTypes, FormatTypes, TextFormat };
