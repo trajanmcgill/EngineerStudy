@@ -107,11 +107,11 @@ class QuizApp
 	{
 		let evaluationResult = quizProblem.answerEvaluator(userAnswer);
 		if (evaluationResult.resultType === EvaluationResultType.Correct_Exact)
-			this.#UI.writeLine("CORRECT!");
+			this.#UI.writeLine("Correct!");
 		else if (evaluationResult.resultType === EvaluationResultType.Correct_Rounded)
-			this.#UI.writeLine(`CORRECT (rounded from ${evaluationResult.correctAnswer})`);
+			this.#UI.writeLine(`Correct (rounded from ${evaluationResult.correctAnswer})`);
 		else
-			this.#UI.writeLine("WRONG!");
+			this.#UI.writeLine(`Incorrect. Expected answer: ${evaluationResult.correctAnswer}.`);
 		this.#UI.writeLine("");
 	}
 
