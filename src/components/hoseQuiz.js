@@ -1,5 +1,5 @@
 import { GEVFC_ConfigurationsGroups } from "./hoseConfigurations";
-import { UserPromptTypes, FormatTypes, TextFormat } from "./UI";
+import { UserPromptTypes, FormatTypes, TextFormat } from "./ui";
 
 
 const Version = "1.0";
