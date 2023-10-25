@@ -208,17 +208,6 @@ const GEVFC_ConfigurationsGroups = Object.freeze(
 					]),
 	
 				new HoseConfiguration(
-					"Deck gun with 1 1/4\" tip",
-					[
-						new Nozzle(
-							{
-								nozzleType: Nozzle.Types.MasterSmooth,
-								diameter: 1 + 1/4
-							}),
-						new IntermediateAppliance(IntermediateAppliance.Types.MasterStreamDevice)
-					]),
-
-				new HoseConfiguration(
 					"Deck gun with 1 3/8\" tip",
 					[
 						new Nozzle(
@@ -241,6 +230,28 @@ const GEVFC_ConfigurationsGroups = Object.freeze(
 					]),
 
 				new HoseConfiguration(
+					"Deck gun with 1 3/4\" tip",
+					[
+						new Nozzle(
+							{
+								nozzleType: Nozzle.Types.MasterSmooth,
+								diameter: 1 + 3/4
+							}),
+						new IntermediateAppliance(IntermediateAppliance.Types.MasterStreamDevice)
+					]),
+
+				new HoseConfiguration(
+					"Deck gun with 2\" tip",
+					[
+						new Nozzle(
+							{
+								nozzleType: Nozzle.Types.MasterSmooth,
+								diameter: 2
+							}),
+						new IntermediateAppliance(IntermediateAppliance.Types.MasterStreamDevice)
+					]),
+				new HoseConfiguration(
+
 					"Deck gun with fog nozzle",
 					[
 						new Nozzle(
