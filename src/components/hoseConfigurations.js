@@ -1,4 +1,4 @@
-import { ComponentTypes, Nozzle, Hose } from "./engineeringCard";
+import { ComponentTypes, Nozzle, Hose, IntermediateAppliance, Elevation } from "./engineeringCard";
 
 
 class HoseConfiguration
@@ -40,13 +40,15 @@ class HoseConfiguration
 		let totalPressure = 0;
 		let flowRate = this.flowRate;
 		let allComponents = this.#components;
-		for (let i = 0; i < allComponents.length; i++)
+		for (const currentComponent of this.#components)
 		{
-			let currentComponent = allComponents[i];
-			if (currentComponent.componentType === ComponentTypes.Nozzle)
-				totalPressure += currentComponent.pressure;
+			let pressureContributionType = typeof currentComponent.pressureContribution;
+			if (pressureContributionType === "number")
+				totalPressure += currentComponent.pressureContribution;
+			else if (pressureContributionType === "function")
+				totalPressure += currentComponent.pressureContribution(flowRate);
 			else
-				totalPressure += currentComponent.getFrictionLoss(flowRate);
+				throw new Error(`Unable to determine pressure contribution of component ${currentComponent.description}`);
 		}
 
 		return totalPressure;
@@ -111,7 +113,8 @@ const GEVFC_ConfigurationsGroups = Object.freeze(
 									nozzleType: Nozzle.Types.HandFogLowPressure,
 									diameter: 1.5
 								}),
-							new Hose(1.75, 150)
+							new Hose(1.75, 150),
+							new IntermediateAppliance(IntermediateAppliance.Types.Wye)
 						]),
 
 					new HoseConfiguration(

@@ -79,11 +79,14 @@ const Nozzle = (function()
 			])
 		}),
 		/*
+		CHANGE CODE HERE
 		Piercing:
 		{
 			description: "Piercing nozzle",
 			nozzlePressure: 100
 		},
+		SprinklerSystem:
+		{},
 		*/
 		FoamEductor: Object.freeze(
 		{
@@ -125,7 +128,7 @@ const Nozzle = (function()
 		get nozzleType() { return this.#nozzleType; }
 		get description() { return this.#nozzleType.description; }
 		get flowRate() { return this.#flowRateFunction(); }
-		get pressure() { return this.#nozzleType.nozzlePressure; }
+		get pressureContribution() { return this.#nozzleType.nozzlePressure; }
 	} // end class Nozzle
 
 	return Object.freeze(Nozzle);
@@ -243,10 +246,84 @@ const Hose = (function()
 			else
 				return precalculatedValue.frictionLossPer100ft * this.#length / 100;
 		}
+		
+		get pressureContribution()
+		{
+			let thisObject = this;
+			return ((flowRate) => thisObject.getFrictionLoss(flowRate));
+		}
 	} // end class Hose
 
 	return Object.freeze(Hose);
 })(); // end Hose class definition and generation code
 
 
-export { ComponentTypes, Nozzle, Hose };
+const IntermediateAppliance = (function()
+{
+	class IntermediateApplianceType
+	{
+		#id;
+		#description;
+		#frictionLoss;
+
+		constructor(id, description, frictionLoss)
+		{
+			this.#id = id;
+			this.#description = description;
+			this.#frictionLoss = frictionLoss;
+		}
+
+		get id() { return this.#id; }
+		get description() { return this.#description; }
+		get frictionLoss() { return this.#frictionLoss; }
+	} // end class IntermediateApplianceType
+
+
+	const IntermediateApplianceTypes = Object.freeze(
+	{
+		Wye: Object.freeze(new IntermediateApplianceType("Wye", "Wye", 10)),
+		Siamese: Object.freeze(new IntermediateApplianceType("Siamese", "Siamese Connection", 10)),
+		MasterStreamDevice: Object.freeze(new IntermediateApplianceType("MasterStreamDevice", "Master Stream Device", 20)),
+		Standpipe: Object.freeze(new IntermediateApplianceType("Standpipe", "Standpipe", 25)),
+		AerialWaterway_Inlet: Object.freeze(new IntermediateApplianceType("AerialWaterway_Inlet", "Aerial Waterway (from direct intake)", 60)),
+		AerialWaterway_Pump: Object.freeze(new IntermediateApplianceType("AerialWaterway_Pump", "Aerial Waterway (from pump)", 80))
+	}); // end IntermediateApplianceTypes definition
+
+
+	class IntermediateAppliance
+	{
+		#type;
+
+		static get Types() { return IntermediateApplianceTypes; }
+
+		constructor(type) { this.#type = type; }
+
+		get typeID() { return this.#type.id; }
+		get description() { return this.#type.description; }
+		get pressureContribution() { return this.#type.frictionLoss; }
+	} // end class IntermediateAppliance
+
+	return Object.freeze(IntermediateAppliance);
+})(); // end IntermediateAppliance class definition and generation code
+
+
+const Elevation = (function()
+{
+	const PSI_Per_Floor = 10;
+
+	class Elevation
+	{
+		#floorCount;
+
+		constructor(floorCount) { this.#floorCount = floorCount; }
+
+		get floorCount() { return this.#floorCount; }
+		get description() { return `elevation of ${Math.abs(this.#floorCount)} floors ${this.#floorCount >=0 ? "above" : "below"} ground level`; }
+		get pressureContribution() { return this.#floorCount * PSI_Per_Floor; }
+	}
+
+	return Object.freeze(Elevation);
+})();
+
+
+export { ComponentTypes, Nozzle, Hose, IntermediateAppliance, Elevation };
