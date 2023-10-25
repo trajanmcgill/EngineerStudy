@@ -23,7 +23,9 @@ const Nozzle = (function()
 				{ diameter: 15/16, flowRate: 185 },
 				{ diameter: 1, flowRate: 200 },
 				{ diameter: 1+1/8, flowRate: 250 },
-				{ diameter: 1+1/4, flowRate: 300 }
+				{ diameter: 1+1/4, flowRate: 300 },
+				{ diameter: 1+3/8, flowRate: 400 },
+				{ diameter: 1+1/2, flowRate: 500 }
 			])
 		}),
 		HandFogConventional_TrashLine: Object.freeze(

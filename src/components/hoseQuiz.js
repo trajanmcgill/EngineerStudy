@@ -57,23 +57,34 @@ class Quiz
 	{ return this.#problemSet.description; }
 
 
-	getProblem()
+	*getProblems()
 	{
-		// Choose at random a configuration from the question set.
-		let allConfigurations = this.#problemSet.configurations;
-		let problemConfiguration = allConfigurations[Math.floor(Math.random() * allConfigurations.length)];
-
-		// Return the questions and answers for this configuration.
-		let problemDefinition =
+		// Create a randomly ordered array of all the hose/appliance configurations in this problem set.
+		// Copy the problem set configurations array, then move from the back of the array to the front,
+		// randomly swapping an element from the remaining part of the arry with each one.
+		let allConfigurations = Array.from(this.#problemSet.configurations);
+		for (let remaining = allConfigurations.length; remaining > 0; remaining--)
 		{
-			scenario: problemConfiguration.description,
-			questions:
-			[
-				new Question("Flow rate (gallons per minute)", problemConfiguration.flowRate),
-				new Question("Total pressure (p.s.i.)", problemConfiguration.totalPressure)
-			]
-		};
-		return problemDefinition;
+			let nextElementIndex = Math.floor(Math.random() * remaining);
+			let tempCopy = allConfigurations[remaining - 1];
+			allConfigurations[remaining - 1] = allConfigurations[nextElementIndex];
+			allConfigurations[nextElementIndex] = tempCopy;
+		}
+
+		for (const problemConfiguration of allConfigurations)
+		{
+			// Supply the questions and answers related to this configuration.
+			let problemDefinition =
+			{
+				scenario: problemConfiguration.description,
+				questions:
+				[
+					new Question("Flow rate (gallons per minute)", problemConfiguration.flowRate),
+					new Question("Total pressure (p.s.i.)", problemConfiguration.totalPressure)
+				]
+			};
+			yield problemDefinition;
+		}
 	}
 } // end class Quiz
 
@@ -94,9 +105,10 @@ class QuizApp
 
 
 
-	startApplication()
+	async startApplication()
 	{
-		this.#offerQuiz();
+		while (true)
+			await this.#offerQuiz();
 	}
 
 
@@ -111,18 +123,18 @@ class QuizApp
 
 			if (evaluationResult.resultType === EvaluationResultType.Correct_Exact)
 			{
-				this.#UI.writeLine("Correct!");
+				this.#UI.writeLine("Correct!", new TextFormat({ textColor: "white" }));
 				answeredCorrectly = true;
 			}
 			else if (evaluationResult.resultType === EvaluationResultType.Correct_Rounded)
 			{
-				this.#UI.writeLine(`Correct (rounded from ${evaluationResult.correctAnswer})`);
+				this.#UI.writeLine(`Correct (rounded from ${evaluationResult.correctAnswer})`, new TextFormat({ textColor: "white" }));
 				answeredCorrectly = true;
 			}
 			else
 			{
 				let answerDisplayString = showExpectedAnswer ? ` Expected answer: ${evaluationResult.correctAnswer}.` : "";
-				this.#UI.writeLine(`Incorrect.${answerDisplayString}`);
+				this.#UI.writeLine(`Incorrect.${answerDisplayString}`, new TextFormat({ textColor: "orange" }));
 			}
 
 		} while (!answeredCorrectly && !moveOnEvenIfIncorrect);
@@ -149,11 +161,11 @@ class QuizApp
 	async #offerQuiz(quiz)
 	{
 		this.#UI.writeLine(`\n\nStarting Quiz: ${this.#currentQuiz.description}\n`, new TextFormat({ textStyles: [FormatTypes.Bold, FormatTypes.Underline], textColor: "teal"}));
-		while (true)
+		let problemGenerator = this.#currentQuiz.getProblems();
+		for (let nextProblem = problemGenerator.next(); !nextProblem.done; nextProblem = problemGenerator.next())
 		{
-			let problem = this.#currentQuiz.getProblem();
-			this.#UI.writeLine(`\nScenario: ${problem.scenario}`, new TextFormat({ textStyles: [FormatTypes.Bold], textColor: "cyan" }));
-			for (const question of problem.questions)
+			this.#UI.writeLine(`\nScenario: ${nextProblem.value.scenario}`, new TextFormat({ textStyles: [FormatTypes.Bold], textColor: "cyan" }));
+			for (const question of nextProblem.value.questions)
 				await this.#askQuestion(question, false, false);
 		}
 	}

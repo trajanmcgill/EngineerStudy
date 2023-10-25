@@ -89,7 +89,7 @@ const GEVFC_ConfigurationsGroups = Object.freeze(
 						new Nozzle(
 							{
 								nozzleType: Nozzle.Types.HandFogLowPressure,
-								diameter: 1.5
+								diameter: 1 + 1/2
 							}),
 						new Hose(1.75, 200)
 					]),
@@ -100,33 +100,156 @@ const GEVFC_ConfigurationsGroups = Object.freeze(
 						new Nozzle(
 							{
 								nozzleType: Nozzle.Types.HandSmooth,
-								diameter: 1.25
+								diameter: 1 + 1/4
 							}),
 						new Hose(2.5, 200)
 					]),
 
-					new HoseConfiguration(
-						"1 3/4\" skid load with 0\' of 3\", to ground floor",
-						[
-							new Nozzle(
-								{
-									nozzleType: Nozzle.Types.HandFogLowPressure,
-									diameter: 1.5
-								}),
+				new HoseConfiguration(
+					"1 3/4\" skid load with 0\' of 3\", to ground floor",
+					[
+						new Nozzle(
+							{
+								nozzleType: Nozzle.Types.HandFogLowPressure,
+								diameter: 1 + 1/2
+							}),
+						new Hose(1.75, 150),
+						new IntermediateAppliance(IntermediateAppliance.Types.Wye)
+					]),
+
+				new HoseConfiguration(
+					"1 3/4\" skid load with fog tip removed and 0\' of 3\", to ground floor",
+					[
+						new Nozzle(
+							{
+								nozzleType: Nozzle.Types.HandSmooth,
+								diameter: 15/16
+							}),
+						new Hose(1.75, 150),
+						new IntermediateAppliance(IntermediateAppliance.Types.Wye)
+					]),
+
+				new HoseConfiguration(
+					"2 1/2\" skid load with default tip and 0\' of 3\", to ground floor",
+					[
+						new Nozzle(
+							{
+								nozzleType: Nozzle.Types.HandSmooth,
+								diameter: 1 + 1/8
+							}),
+						new Hose(2.5, 150)
+					]),
+
+				new HoseConfiguration(
+					"2 1/2\" skid load with 1 1/4\" tip and 0\' of 3\", to ground floor",
+					[
+						new Nozzle(
+							{
+								nozzleType: Nozzle.Types.HandSmooth,
+								diameter: 1 + 1/4
+							}),
+						new Hose(2.5, 150)
+					]),
+
+				new HoseConfiguration(
+					"Blitzfire with 1 1/4\" tip and 0\' of 3\"",
+					[
+						new Nozzle(
+							{
+								nozzleType: Nozzle.Types.MasterSmooth,
+								diameter: 1 + 1/4
+							})
+					]),
+
+				new HoseConfiguration(
+					"Blitzfire with 1 1/2\" tip and 0\' of 3\"",
+					[
+						new Nozzle(
+							{
+								nozzleType: Nozzle.Types.HandSmooth,
+								diameter: 1 + 1/2
+							})
+					]),
+	
+				new HoseConfiguration(
+					"Trash line (default setting)",
+					[
+						new Nozzle(
+							{
+								nozzleType: Nozzle.Types.HandFogConventional_TrashLine,
+								diameter: 1 + 1/2
+							}),
+						new Hose(1.75, 100)
+					]),
+										
+				new HoseConfiguration(
+					"High-rise pack by itself",
+					[
+						new Nozzle(
+							{
+								nozzleType: Nozzle.Types.HandFogLowPressure,
+								diameter: 1 + 1/2
+							}),
 							new Hose(1.75, 150),
 							new IntermediateAppliance(IntermediateAppliance.Types.Wye)
-						]),
+					]),
+	
+				new HoseConfiguration(
+					"High-rise pack on standpipe (before elevation or hose running to standpipe is counted)",
+					[
+						new Nozzle(
+							{
+								nozzleType: Nozzle.Types.HandFogLowPressure,
+								diameter: 1 + 1/2
+							}),
+						new Hose(1.75, 150),
+						new IntermediateAppliance(IntermediateAppliance.Types.Wye),
+						new IntermediateAppliance(IntermediateAppliance.Types.Standpipe)
+					]),
+	
+				new HoseConfiguration(
+					"Deck gun with 1 1/4\" tip",
+					[
+						new Nozzle(
+							{
+								nozzleType: Nozzle.Types.MasterSmooth,
+								diameter: 1 + 1/4
+							}),
+						new IntermediateAppliance(IntermediateAppliance.Types.MasterStreamDevice)
+					]),
 
-					new HoseConfiguration(
-						"2 1/2\" skid load with default tip and 0\' of 3\", to ground floor",
-						[
-							new Nozzle(
-								{
-									nozzleType: Nozzle.Types.HandSmooth,
-									diameter: 1 + 1/8
-								}),
-							new Hose(2.5, 150)
-						])
+				new HoseConfiguration(
+					"Deck gun with 1 3/8\" tip",
+					[
+						new Nozzle(
+							{
+								nozzleType: Nozzle.Types.MasterSmooth,
+								diameter: 1 + 3/8
+							}),
+						new IntermediateAppliance(IntermediateAppliance.Types.MasterStreamDevice)
+					]),
+
+				new HoseConfiguration(
+					"Deck gun with 1 1/2\" tip",
+					[
+						new Nozzle(
+							{
+								nozzleType: Nozzle.Types.MasterSmooth,
+								diameter: 1 + 1/2
+							}),
+						new IntermediateAppliance(IntermediateAppliance.Types.MasterStreamDevice)
+					]),
+
+				new HoseConfiguration(
+					"Deck gun with fog nozzle",
+					[
+						new Nozzle(
+							{
+								nozzleType: Nozzle.Types.MasterFog,
+							}),
+						new IntermediateAppliance(IntermediateAppliance.Types.MasterStreamDevice)
+					]),
+						
 			]))
 ]);
 
