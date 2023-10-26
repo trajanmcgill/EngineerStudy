@@ -6,10 +6,16 @@
 	let _quizApp = null;
 	let vQuizApp = ref({});
 	let timeElapsed = ref("0:00");
+	let avgAnswerTime = ref("0:00");
 
 	function updateTimeElapsed(newValue)
 	{
 		timeElapsed.value = newValue;
+	}
+
+	function updateAvgAnswerTime(newValue)
+	{
+		avgAnswerTime = newValue;
 	}
 
 	const vCurrentQuiz = computed(
@@ -21,7 +27,7 @@
 
 	function start()
 	{
-		_quizApp = new QuizApp(CLI, updateTimeElapsed);
+		_quizApp = new QuizApp(CLI, updateTimeElapsed, updateAvgAnswerTime);
 		vQuizApp.value = _quizApp;
 		_quizApp.startApplication();
 	}
@@ -49,7 +55,7 @@
 			</div>
 			<div id="BadgesArea">
 				<div class="TimerDisplay" id="CurrentQuestionTimer">Current question: {{ timeElapsed }}</div>
-				<div class="TimerDisplay" id="AverageTimer">Average time to correct answer: 1:12</div>
+				<div class="TimerDisplay" id="AverageTimer">Average time to correct answer: {{ avgAnswerTime }}</div>
 			</div>
 		</div>
 	</footer>

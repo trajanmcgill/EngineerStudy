@@ -103,20 +103,25 @@ class Quiz
 class QuizApp
 {
 	#UI_Class;
+	#overallStartTime = null;
 	#currentQuestionStartTime;
 	#timerInterval = null;
-	#externalTimerUpdate;
+	#externalTimerUpdater;
+	#externalAvgTimeUpdater;
+	#currentQuestionTimeElapsed = "0:00";
+	#avgQuestionTimeElapsed = "0:00";
+	#questionsAnswered = 0;
+	#streak = 0;
 	UI;
 	quizzes;
 	currentQuiz;
-	currentQuestionTimeElapsed = "0:00";
-	showTimer = true;
 
 
-	constructor(UI_Class, externalTimerUpdate)
+	constructor(UI_Class, externalTimerUpdater, externalAvgTimeUpdater)
 	{
 		this.#UI_Class = UI_Class;
-		this.#externalTimerUpdate = externalTimerUpdate;
+		this.#externalTimerUpdater = externalTimerUpdater;
+		this.#externalAvgTimeUpdater = externalAvgTimeUpdater;
 		this.quizzes =
 		[
 			new Quiz("GEVFC_BASE_CONFIGURATIONS", "GEVFC Basic Configurations (Starting Points)",
@@ -166,7 +171,7 @@ class QuizApp
 	startTimer()
 	{
 		let thisObject = this;
-		this.currentQuestionTimeElapsed = 0;
+		this.#currentQuestionTimeElapsed = 0;
 		this.#currentQuestionStartTime = Date.now();
 		this.#timerInterval = window.setInterval(function() { thisObject.updateTimer() }, TimerRegularity);
 	}
@@ -174,13 +179,10 @@ class QuizApp
 
 	updateTimer()
 	{
-		let msElapsed = Date.now() - this.#currentQuestionStartTime,
-			secondsElapsed = msElapsed / 1000,
-			minutesElapsed = Math.floor(secondsElapsed / 60),
-			remainingSeconds = String(Math.round(secondsElapsed % 60)).padStart(2, "0");
-		this.currentQuestionTimeElapsed = `${minutesElapsed}:${remainingSeconds}`;
-		if (this.#externalTimerUpdate)
-			this.#externalTimerUpdate(this.currentQuestionTimeElapsed);
+		let questionTime_ms = Date.now() - this.#currentQuestionStartTime;
+		this.#currentQuestionTimeElapsed = this.#getTimeString(questionTime_ms);
+		if (this.#externalTimerUpdater)
+			this.#externalTimerUpdater(this.#currentQuestionTimeElapsed);
 	}
 
 
@@ -191,6 +193,31 @@ class QuizApp
 			window.clearInterval(this.#timerInterval);
 			this.#timerInterval = null;
 		}
+	}
+
+	updateAvgTime()
+	{
+		let avgTime_ms = 0;
+
+		if (this.#overallStartTime !== null && this.#questionsAnswered > 0)
+		{
+			let totalTimeElapsed = Date.now() - this.#overallStartTime;
+			avgTime_ms = totalTimeElapsed / this.#questionsAnswered;
+		}
+
+		this.#avgQuestionTimeElapsed = this.#getTimeString(avgTime_ms);
+
+		if (this.#externalAvgTimeUpdater)
+			this.#externalAvgTimeUpdater(this.#avgQuestionTimeElapsed);
+	}
+
+
+	#getTimeString(milliseconds)
+	{
+		let secondsElapsed = milliseconds / 1000,
+			minutesElapsed = Math.floor(secondsElapsed / 60),
+			remainingSeconds = String(Math.round(secondsElapsed % 60)).padStart(2, "0");
+		return `${minutesElapsed}:${remainingSeconds}`;
 	}
 
 
@@ -242,11 +269,8 @@ class QuizApp
 	async #askQuestion(question, showExpectedAnswer, moveOnEvenIfIncorrect)
 	{
 		let answeredCorrectly = false;
-		this.showTimer = !moveOnEvenIfIncorrect;
 
-		if (this.showTimer)
-			this.startTimer();
-		
+		this.startTimer();
 		do
 		{
 			let userAnswer = await this.UI.getInput(question.prompt, UserPromptTypes.Secondary);
@@ -266,10 +290,13 @@ class QuizApp
 			{
 				let answerDisplayString = showExpectedAnswer ? ` Expected answer: ${evaluationResult.correctAnswer}.` : "";
 				this.UI.writeLine(`Incorrect.${answerDisplayString}`, new TextFormat({ textStyles: [FormatTypes.Bold], textColor: "#e57a44" }));
+				this.#streak = 0;
 			}
 		} while (!answeredCorrectly && !moveOnEvenIfIncorrect);
 	
+		this.#questionsAnswered++;
 		this.stopTimer();
+		this.updateAvgTime();
 	}
 	
 	
@@ -294,6 +321,11 @@ class QuizApp
 	{
 		this.UI.writeLine(`\n\nStarting Quiz: ${this.currentQuiz.description}`, new TextFormat({ textStyles: [FormatTypes.Bold, FormatTypes.Underline], textColor: "#59cd90"}));
 		let problemGenerator = this.currentQuiz.getProblems();
+
+		this.#questionsAnswered = 0;
+		this.#overallStartTime = Date.now();
+		this.updateAvgTime();
+
 		for (let nextProblem = problemGenerator.next(); !nextProblem.done; nextProblem = problemGenerator.next())
 		{
 			this.UI.writeLine(`\nScenario: ${nextProblem.value.scenario}`, new TextFormat({ textStyles: [FormatTypes.Bold], textColor: "#3fa7d6" }));
