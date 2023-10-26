@@ -1,4 +1,4 @@
-import { ComponentTypes } from "./engineeringCard";
+import { ComponentTypes, Hose } from "./engineeringCard";
 import { HoseConfiguration, ConfigurationsGroup, GEVFC_ConfigurationsGroups } from "./hoseConfigurations";
 import { UserPromptTypes, FormatTypes, TextFormat } from "./ui";
 import { ref } from 'vue';
@@ -116,7 +116,7 @@ class QuizApp
 		this.#UI_Class = UI_Class;
 		this.quizzes =
 		[
-			new Quiz("GEVFC_BASE_CONFIGURATIONS", "GEVFC Base Starting Point Configurations",
+			new Quiz("GEVFC_BASE_CONFIGURATIONS", "GEVFC Basic Configurations (Starting Points)",
 				GEVFC_ConfigurationsGroups.getById("GEVFC_BASE_CONFIGURATIONS"),
 				{ flowQuestion: "Flow rate (gallons per minute)", pressureQuestion: "Discharge pressure (p.s.i.)" } ),
 
@@ -173,9 +173,20 @@ class QuizApp
 			for (const baseComponent of baseConfiguration.components)
 			{
 				let changes = {};
-				if (baseComponent.componentType == ComponentTypes.Elevation)
+				if (baseComponent.componentType === ComponentTypes.Elevation)
 					changes = { floorCount: Math.floor(Math.random() * (HoseConfiguration.MaxFloorAboveGround - HoseConfiguration.MinFloorAboveGround + 1)) + HoseConfiguration.MinFloorAboveGround };
-				// ADD CODE HERE (change hose lengths also)
+				else if (baseComponent.componentType === ComponentTypes.Hose && baseComponent.diameter === 3)
+				{
+					let maxLengths = (HoseConfiguration.Max3Inch - HoseConfiguration.Min3Inch) / HoseConfiguration.Multiples_3Inch;
+					let numLengths = Math.floor(Math.random() * (maxLengths + 1));
+					changes = { length: numLengths * HoseConfiguration.Multiples_3Inch };
+				}
+				else if (baseComponent.componentType === ComponentTypes.Hose && baseComponent.diameter === 5)
+				{
+					let maxLengths = (HoseConfiguration.Max5Inch - HoseConfiguration.Min5Inch) / HoseConfiguration.Multiples_5Inch;
+					let numLengths = Math.floor(Math.random() * (maxLengths + 1));
+					changes = { length: numLengths * HoseConfiguration.Multiples_5Inch };
+				}
 				components.push(baseComponent.duplicate(changes));
 			}
 
