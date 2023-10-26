@@ -323,7 +323,7 @@ let GEVFC_ConfigurationsGroups =
 					[
 						new Nozzle({ nozzleType: Nozzle.Types.MasterFog }),
 						new IntermediateAppliance(IntermediateAppliance.Types.MasterStreamDevice)
-					])						
+					])
 			])),
 
 	new ConfigurationsGroup(

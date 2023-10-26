@@ -53,17 +53,22 @@ class Quiz
 	description;
 	#flowQuestion;
 	#pressureQuestion;
-	#configurationSet;
+	configurationSet;
+	#isDynamic;
 
 
-	constructor(id, description, configurationSet, { flowQuestion, pressureQuestion })
+	constructor(id, description, configurationSet, isDynamic, { flowQuestion, pressureQuestion })
 	{
 		this.id = id;
 		this.description = description;
-		this.#configurationSet = configurationSet;
+		this.configurationSet = configurationSet;
+		this.#isDynamic = isDynamic;
 		this.#flowQuestion = flowQuestion;
 		this.#pressureQuestion = pressureQuestion;
 	}
+
+
+	get isDynamic() { return this.#isDynamic; }
 
 
 	*getProblems()
@@ -71,7 +76,7 @@ class Quiz
 		// Create a randomly ordered array of all the hose/appliance configurations in this problem set.
 		// Copy the problem set configurations array, then move from the back of the array to the front,
 		// randomly swapping an element from the remaining part of the arry with each one.
-		let allConfigurations = Array.from(this.#configurationSet.configurations);
+		let allConfigurations = Array.from(this.configurationSet.configurations);
 		for (let remaining = allConfigurations.length; remaining > 0; remaining--)
 		{
 			let nextElementIndex = Math.floor(Math.random() * remaining);
@@ -126,22 +131,32 @@ class QuizApp
 		this.#externalStreakTracker = externalStreakTracker;
 		this.quizzes =
 		[
-			new Quiz("GEVFC_BASE_CONFIGURATIONS", "GEVFC Basic Configurations (Starting Points)",
+			new Quiz(
+				"GEVFC_BASE_CONFIGURATIONS",
+				"GEVFC Basic Configurations (Starting Points)",
 				GEVFC_ConfigurationsGroups.getById("GEVFC_BASE_CONFIGURATIONS"),
+				false,
 				{ flowQuestion: "Flow rate (gallons per minute)", pressureQuestion: "Discharge pressure (p.s.i.)" } ),
 
-			new Quiz("NOZZLES_ALONE", "Nozzle Flow Rates",
+			new Quiz(
+				"NOZZLES_ALONE",
+				"Nozzle Flow Rates",
 				GEVFC_ConfigurationsGroups.getById("NOZZLES_ALONE"),
+				false,
 				{ flowQuestion: "Flow rate (gallons per minute)" } ),
 
-			new Quiz("BASE_FRICTION_LOSS_ITEMS_COMMON", "Base Friction Losses (Common)",
+			new Quiz(
+				"BASE_FRICTION_LOSS_ITEMS_COMMON",
+				"Base Friction Losses (Common)",
 				GEVFC_ConfigurationsGroups.getById("BASE_FRICTION_LOSS_ITEMS_COMMON"),
+				false,
 				{ pressureQuestion: "Friction loss (p.s.i.)" } ),
 
 			new Quiz(
 				"GEVFC_REALISTIC_SCENARIOS",
 				"GEVFC Basic Configurations (Realistic Scenarios)",
 				this.#buildRealisticConfigurationsGroup(GEVFC_ConfigurationsGroups.getById("GEVFC_BASE_CONFIGURATIONS")),
+				true,
 				{ flowQuestion: "Flow rate (gallons per minute)", pressureQuestion: "Discharge pressure (p.s.i.)" })
 			];
 
@@ -350,6 +365,11 @@ class QuizApp
 			for (const question of nextProblem.value.questions)
 				await this.#askQuestion(question, false, false);
 		}
+
+		// If this was a dynamic quiz-- one with realistic scenarios-- then generate a new set of realistic scenarios
+		// before this quiz repeats next.
+		if (this.currentQuiz.isDynamic)
+			this.currentQuiz.configurationSet = this.#buildRealisticConfigurationsGroup(this.currentQuiz.configurationSet);
 	}
 
 } // end class QuizApp
