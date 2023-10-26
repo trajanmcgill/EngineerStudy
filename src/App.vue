@@ -3,20 +3,25 @@
 	import { CLI } from './components/cli';
 	import { QuizApp } from './components/hoseQuiz';
 
+	const Streak_Display = 10;
+	const Streak_Exclaim = 30;
+
 	let _quizApp = null;
 	let vQuizApp = ref({});
 	let timeElapsed = ref("0:00");
 	let avgAnswerTime = ref("0:00");
+	let streak = ref(0);
 
 	function updateTimeElapsed(newValue)
-	{
-		timeElapsed.value = newValue;
-	}
+	{ timeElapsed.value = newValue; }
 
 	function updateAvgAnswerTime(newValue)
-	{
-		avgAnswerTime = newValue;
-	}
+	{ avgAnswerTime = newValue; }
+
+	function updateStreak(newValue)
+	{ streak.value = newValue; }
+
+	const exclamation = computed(() => ((streak.value >= Streak_Exclaim) ? "!" : ""));
 
 	const vCurrentQuiz = computed(
 		{
@@ -27,7 +32,7 @@
 
 	function start()
 	{
-		_quizApp = new QuizApp(CLI, updateTimeElapsed, updateAvgAnswerTime);
+		_quizApp = new QuizApp(CLI, updateTimeElapsed, updateAvgAnswerTime, updateStreak);
 		vQuizApp.value = _quizApp;
 		_quizApp.startApplication();
 	}
@@ -53,9 +58,12 @@
 					<label class="QuizChoice" v-bind:for="'QUIZ_' + quiz.id">{{ quiz.description }}</label>
 				</div>
 			</div>
-			<div id="BadgesArea">
-				<div class="TimerDisplay" id="CurrentQuestionTimer">Current question: {{ timeElapsed }}</div>
-				<div class="TimerDisplay" id="AverageTimer">Average time to correct answer: {{ avgAnswerTime }}</div>
+			<div id="StreakArea">
+				<div v-if="streak >= Streak_Display" class="BadgeDisplay" id="Streak">Streak: {{ streak }}{{ exclamation }}</div>
+			</div>
+			<div id="TimersArea">
+				<div class="BadgeDisplay" id="CurrentQuestionTimer">Current question: {{ timeElapsed }}</div>
+				<div class="BadgeDisplay" id="AverageTimer">Average time to correct answer: {{ avgAnswerTime }}</div>
 			</div>
 		</div>
 	</footer>

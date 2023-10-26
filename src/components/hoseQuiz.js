@@ -108,20 +108,22 @@ class QuizApp
 	#timerInterval = null;
 	#externalTimerUpdater;
 	#externalAvgTimeUpdater;
+	#externalStreakTracker
 	#currentQuestionTimeElapsed = "0:00";
 	#avgQuestionTimeElapsed = "0:00";
 	#questionsAnswered = 0;
-	#streak = 0;
+	#_streak = 0;
 	UI;
 	quizzes;
 	currentQuiz;
 
 
-	constructor(UI_Class, externalTimerUpdater, externalAvgTimeUpdater)
+	constructor(UI_Class, externalTimerUpdater, externalAvgTimeUpdater, externalStreakTracker)
 	{
 		this.#UI_Class = UI_Class;
 		this.#externalTimerUpdater = externalTimerUpdater;
 		this.#externalAvgTimeUpdater = externalAvgTimeUpdater;
+		this.#externalStreakTracker = externalStreakTracker;
 		this.quizzes =
 		[
 			new Quiz("GEVFC_BASE_CONFIGURATIONS", "GEVFC Basic Configurations (Starting Points)",
@@ -157,6 +159,20 @@ class QuizApp
 		this.UI.cancelInput();
 	}
 
+
+	#incrementStreak()
+	{
+		this.#_streak++;
+		if (this.#externalStreakTracker)
+			this.#externalStreakTracker(this.#_streak);
+	}
+
+	#clearStreak()
+	{
+		this.#_streak = 0;
+		if (this.#externalStreakTracker)
+			this.#externalStreakTracker(this.#_streak);
+	}
 
 	async startApplication()
 	{
@@ -290,11 +306,13 @@ class QuizApp
 			{
 				let answerDisplayString = showExpectedAnswer ? ` Expected answer: ${evaluationResult.correctAnswer}.` : "";
 				this.UI.writeLine(`Incorrect.${answerDisplayString}`, new TextFormat({ textStyles: [FormatTypes.Bold], textColor: "#e57a44" }));
-				this.#streak = 0;
+				this.#clearStreak();
 			}
 		} while (!answeredCorrectly && !moveOnEvenIfIncorrect);
 	
 		this.#questionsAnswered++;
+		if (answeredCorrectly)
+			this.#incrementStreak();
 		this.stopTimer();
 		this.updateAvgTime();
 	}
