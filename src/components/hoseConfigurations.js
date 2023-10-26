@@ -3,21 +3,24 @@ import { ComponentTypes, Nozzle, Hose, IntermediateAppliance, Elevation } from "
 
 class HoseConfiguration
 {
-	#description;
+	descriptionFunction;
 	#components;
-	#flowRate = null;
+	_flowRate = null;
 
 
 	constructor(description, components, flowRate = null)
 	{
-		this.#description = description;
+		if (typeof description === "function")
+			this.descriptionFunction = description;
+		else
+			this.descriptionFunction = function() { return description; };
 		this.#components = components;
-		this.#flowRate = flowRate;
+		this._flowRate = flowRate;
 	} // end HoseConfiguration constructor
 
 
-	static get MinElevation() { return -1; }
-	static get MaxElevation() { return 6; }
+	static get MinFloorAboveGround() { return -1; }
+	static get MaxFloorAboveGround() { return 5; }
 
 	static get Min3Inch() { return 0; }
 	static get Max3Inch() { return 600; }
@@ -29,7 +32,7 @@ class HoseConfiguration
 
 
 	get description()
-	{ return (typeof this.#description === "function" ? this.#description() : this.#description); }
+	{ return this.descriptionFunction(); }
 
 
 	get components()
@@ -42,17 +45,17 @@ class HoseConfiguration
 		// If it is not null, either flow rate was set as a fixed value for this hose configuration,
 		// or it has previously been calculated and saved for subsequent requests, and we just return the known value.
 
-		if (this.#flowRate === null)
+		if (this._flowRate === null)
 		{
 			// Flow rate is determined by the nozzle. Find the nozzle component to get its flow rate.
 			// Only calculate flow rate once, and save it for subsequent calls.
 			let nozzle = this.#components.find((component) => component.componentType === ComponentTypes.Nozzle);
 			if (nozzle === undefined)
 				throw new Error("Invalid configuration: No nozzle; unable to determine flow rate.");
-			this.#flowRate = nozzle.flowRate;
+			this._flowRate = nozzle.flowRate;
 		}
 
-		return this.#flowRate;
+		return this._flowRate;
 	} // end flowRate property
 
 
@@ -74,9 +77,15 @@ class HoseConfiguration
 	} // end totalPressure property
 
 
+	get elevationComponent()
+	{
+		return this.components.find((component) => component.componentType === ComponentTypes.Elevation);
+	} // end elevationComponent property
+
+	
 	get elevationText()
 	{
-		let elevation = this.components.find((component) => component.componentType === ComponentTypes.Elevation);
+		let elevation = this.elevationComponent;
 		if (elevation.floorCount == -1)
 			return "basement";
 		if (elevation.floorCount == 0)
@@ -413,4 +422,4 @@ GEVFC_ConfigurationsGroups.getById = function(id) { return this.find((configurat
 Object.freeze(GEVFC_ConfigurationsGroups);
 
 
-export { HoseConfiguration, GEVFC_ConfigurationsGroups };
+export { HoseConfiguration, ConfigurationsGroup, GEVFC_ConfigurationsGroups };

@@ -1,4 +1,5 @@
-import { GEVFC_ConfigurationsGroups } from "./hoseConfigurations";
+import { ComponentTypes } from "./engineeringCard";
+import { HoseConfiguration, ConfigurationsGroup, GEVFC_ConfigurationsGroups } from "./hoseConfigurations";
 import { UserPromptTypes, FormatTypes, TextFormat } from "./ui";
 import { ref } from 'vue';
 
@@ -126,7 +127,14 @@ class QuizApp
 			new Quiz("BASE_FRICTION_LOSS_ITEMS_COMMON", "Base Friction Losses (Common)",
 				GEVFC_ConfigurationsGroups.getById("BASE_FRICTION_LOSS_ITEMS_COMMON"),
 				{ pressureQuestion: "Friction loss (p.s.i.)" } ),
-		];
+
+			new Quiz(
+				"GEVFC_REALISTIC_SCENARIOS",
+				"GEVFC Basic Configurations (Realistic Scenarios)",
+				this.#buildRealisticConfigurationsGroup(GEVFC_ConfigurationsGroups.getById("GEVFC_BASE_CONFIGURATIONS")),
+				{ flowQuestion: "Flow rate (gallons per minute)", pressureQuestion: "Discharge pressure (p.s.i.)" })
+			];
+
 		this.currentQuiz = this.quizzes[0];
 		this.UI = new this.#UI_Class(`Welcome to Hose Quiz, version ${Version}.`);
 	} // end QuizApp constructor
@@ -150,6 +158,40 @@ class QuizApp
 			catch (err) { this.UI.writeLine("** Ending quiz. **\n", new TextFormat({ textColor: "mediumslateblue" })); }
 		}
 	}
+
+
+	#buildRealisticConfigurationsGroup(baseConfigurationsGroup)
+	{
+		// Build a new configurations group that is a copy of the base configurations group,
+		// but with elevations and hose lengths changed to realistic but random numbers.
+		let realisticConfigurations = [];
+		for (const baseConfiguration of baseConfigurationsGroup.configurations)
+		{
+			// Build a components list, copying all the components from the base list,
+			// but modifying any elevation, 3" hose, or 5" hose components.
+			let components = [];
+			for (const baseComponent of baseConfiguration.components)
+			{
+				let changes = {};
+				if (baseComponent.componentType == ComponentTypes.Elevation)
+					changes = { floorCount: Math.floor(Math.random() * (HoseConfiguration.MaxFloorAboveGround - HoseConfiguration.MinFloorAboveGround + 1)) + HoseConfiguration.MinFloorAboveGround };
+				// ADD CODE HERE (change hose lengths also)
+				components.push(baseComponent.duplicate(changes));
+			}
+
+			// Create a new hose configuration with all these components.
+			realisticConfigurations.push(
+				new HoseConfiguration(
+					baseConfiguration.descriptionFunction,
+					components,
+					baseConfiguration._flowRate));
+		}
+
+		return new ConfigurationsGroup(
+			`${baseConfigurationsGroup.id}_REALISTIC_${Math.random()}`,
+			`${baseConfigurationsGroup.description} (with random, realistic modifications)`,
+			realisticConfigurations);
+	} // end #buildRealisticConfigurationsGroup()
 
 
 	async #askQuestion(question, showExpectedAnswer, moveOnEvenIfIncorrect)
@@ -209,6 +251,7 @@ class QuizApp
 				await this.#askQuestion(question, false, false);
 		}
 	}
+
 } // end class QuizApp
 
 

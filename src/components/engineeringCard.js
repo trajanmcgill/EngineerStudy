@@ -152,7 +152,19 @@ const Nozzle = (function()
 		get description() { return this.#nozzleType.description; }
 		get flowRate() { return this.#flowRateFunction(); }
 		get pressureContribution() { return this.#nozzleType.nozzlePressure; }
+
+		duplicate(changes = {})
+		{
+			return new Nozzle(
+			{
+				nozzleType: changes.nozzleType ?? this.#nozzleType,
+				diameter: changes.diameter ?? this.#diameter,
+				identifier: changes.identifier ?? this.#identifier
+			});
+		} // end duplicate()
+
 	} // end class Nozzle
+
 
 	return Object.freeze(Nozzle);
 })(); // end Nozzle class generation code
@@ -248,6 +260,7 @@ const Hose = (function()
 		length;
 		#frictionLossTable;
 	
+
 		constructor(diameter, length)
 		{
 			this.#componentType = ComponentTypes.Hose;
@@ -256,10 +269,12 @@ const Hose = (function()
 			this.#frictionLossTable = HoseFrictionLossTables.find((frictionLossTable) => frictionLossTable.diameter === diameter);
 		}
 		
+
 		get componentType() { return this.#componentType; }
 		get description() { return `${this.length}\' of ${diameterDescription(this.#diameter)} hose` }
 		get diameter() { return this.#diameter; }
 	
+		
 		getFrictionLoss(flowRate)
 		{
 			let precalculatedValue = this.#frictionLossTable.precalculatedFrictionLosses.find((entry) => entry.flowRate === flowRate);
@@ -269,11 +284,19 @@ const Hose = (function()
 				return precalculatedValue.frictionLossPer100ft * this.length / 100;
 		}
 		
+
 		get pressureContribution()
 		{
 			let thisObject = this;
 			return ((flowRate) => thisObject.getFrictionLoss(flowRate));
 		}
+
+
+		duplicate(changes = {})
+		{
+			return new Hose(changes.diameter ?? this.#diameter, changes.length ?? this.length);
+		} // end duplicate()
+
 	} // end class Hose
 
 	return Object.freeze(Hose);
@@ -329,6 +352,12 @@ const IntermediateAppliance = (function()
 		get intermediateApplianceType() { return this.#intermediateApplianceType.id; }
 		get description() { return this.#intermediateApplianceType.description; }
 		get pressureContribution() { return this.#intermediateApplianceType.frictionLoss; }
+
+		duplicate(changes = {})
+		{
+			return new IntermediateAppliance(changes.type ?? this.#intermediateApplianceType);
+		} // end duplicate()
+
 	} // end class IntermediateAppliance
 
 	return Object.freeze(IntermediateAppliance);
@@ -337,7 +366,7 @@ const IntermediateAppliance = (function()
 
 const Elevation = (function()
 {
-	const PSI_Per_Floor = 10;
+	const PSI_Per_Floor = 5;
 
 	class Elevation
 	{
@@ -353,10 +382,17 @@ const Elevation = (function()
 		get componentType() { return this.#componentType; }
 		get description() { return `elevation of ${Math.abs(this.floorCount)} floors ${this.floorCount >=0 ? "above" : "below"} ground level`; }
 		get pressureContribution() { return this.floorCount * PSI_Per_Floor; }
-	}
+
+		duplicate(changes = {})
+		{
+			return new Elevation(changes.floorCount ?? this.floorCount);
+		} // end duplicate()
+
+	} // end class Elevation
+
 
 	return Object.freeze(Elevation);
-})();
+})(); // end Elevation class definition and generation code
 
 
 export { ComponentTypes, Nozzle, Hose, IntermediateAppliance, Elevation };
