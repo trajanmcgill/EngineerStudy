@@ -1,10 +1,11 @@
 import { ComponentTypes, Hose } from "./engineeringCard";
 import { HoseConfiguration, ConfigurationsGroup, GEVFC_ConfigurationsGroups } from "./hoseConfigurations";
 import { UserPromptTypes, FormatTypes, TextFormat } from "./ui";
-import { ref } from 'vue';
 
 
 const Version = "1.0";
+const TimerRegularity = 250; // update the timer view every 0.25 seconds
+
 
 const EvaluationResultType = Object.freeze(
 {
@@ -65,10 +66,6 @@ class Quiz
 	}
 
 
-	//get id() { return this.#id; }
-	//get description() { return this.#description; }
-
-
 	*getProblems()
 	{
 		// Create a randomly ordered array of all the hose/appliance configurations in this problem set.
@@ -106,14 +103,20 @@ class Quiz
 class QuizApp
 {
 	#UI_Class;
+	#currentQuestionStartTime;
+	#timerInterval = null;
+	#externalTimerUpdate;
 	UI;
 	quizzes;
 	currentQuiz;
+	currentQuestionTimeElapsed = "0:00";
+	showTimer = true;
 
 
-	constructor(UI_Class)
+	constructor(UI_Class, externalTimerUpdate)
 	{
 		this.#UI_Class = UI_Class;
+		this.#externalTimerUpdate = externalTimerUpdate;
 		this.quizzes =
 		[
 			new Quiz("GEVFC_BASE_CONFIGURATIONS", "GEVFC Basic Configurations (Starting Points)",
@@ -156,6 +159,37 @@ class QuizApp
 		{
 			try { await this.#offerQuiz(); }
 			catch (err) { this.UI.writeLine("** Ending quiz. **\n", new TextFormat({ textColor: "#59cd90" })); }
+		}
+	}
+
+
+	startTimer()
+	{
+		let thisObject = this;
+		this.currentQuestionTimeElapsed = 0;
+		this.#currentQuestionStartTime = Date.now();
+		this.#timerInterval = window.setInterval(function() { thisObject.updateTimer() }, TimerRegularity);
+	}
+
+
+	updateTimer()
+	{
+		let msElapsed = Date.now() - this.#currentQuestionStartTime,
+			secondsElapsed = msElapsed / 1000,
+			minutesElapsed = Math.floor(secondsElapsed / 60),
+			remainingSeconds = String(Math.round(secondsElapsed % 60)).padStart(2, "0");
+		this.currentQuestionTimeElapsed = `${minutesElapsed}:${remainingSeconds}`;
+		if (this.#externalTimerUpdate)
+			this.#externalTimerUpdate(this.currentQuestionTimeElapsed);
+	}
+
+
+	stopTimer()
+	{
+		if (this.#timerInterval !== null)
+		{
+			window.clearInterval(this.#timerInterval);
+			this.#timerInterval = null;
 		}
 	}
 
@@ -208,7 +242,11 @@ class QuizApp
 	async #askQuestion(question, showExpectedAnswer, moveOnEvenIfIncorrect)
 	{
 		let answeredCorrectly = false;
+		this.showTimer = !moveOnEvenIfIncorrect;
 
+		if (this.showTimer)
+			this.startTimer();
+		
 		do
 		{
 			let userAnswer = await this.UI.getInput(question.prompt, UserPromptTypes.Secondary);
@@ -229,8 +267,9 @@ class QuizApp
 				let answerDisplayString = showExpectedAnswer ? ` Expected answer: ${evaluationResult.correctAnswer}.` : "";
 				this.UI.writeLine(`Incorrect.${answerDisplayString}`, new TextFormat({ textStyles: [FormatTypes.Bold], textColor: "#e57a44" }));
 			}
-
 		} while (!answeredCorrectly && !moveOnEvenIfIncorrect);
+	
+		this.stopTimer();
 	}
 	
 	

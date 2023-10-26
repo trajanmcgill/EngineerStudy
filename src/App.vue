@@ -5,6 +5,12 @@
 
 	let _quizApp = null;
 	let vQuizApp = ref({});
+	let timeElapsed = ref("0:00");
+
+	function updateTimeElapsed(newValue)
+	{
+		timeElapsed.value = newValue;
+	}
 
 	const vCurrentQuiz = computed(
 		{
@@ -15,7 +21,7 @@
 
 	function start()
 	{
-		_quizApp = new QuizApp(CLI);
+		_quizApp = new QuizApp(CLI, updateTimeElapsed);
 		vQuizApp.value = _quizApp;
 		_quizApp.startApplication();
 	}
@@ -34,10 +40,16 @@
 
 	<footer>
 		<div id="FooterBar">
-			<h2>Active Quiz:</h2>
-			<div v-for="quiz in vQuizApp.quizzes" :key="quiz.id">
-				<input name="QuizSelection" v-bind:id="'QUIZ_' + quiz.id" type="radio" v-bind:value="quiz.id" v-model="vCurrentQuiz" />
-				<label class="QuizChoice" v-bind:for="'QUIZ_' + quiz.id">{{ quiz.description }}</label>
+			<div id="QuizSelectionArea">
+				<h2>Active Quiz:</h2>
+				<div v-for="quiz in vQuizApp.quizzes" :key="quiz.id">
+					<input name="QuizSelection" v-bind:id="'QUIZ_' + quiz.id" type="radio" v-bind:value="quiz.id" v-model="vCurrentQuiz" />
+					<label class="QuizChoice" v-bind:for="'QUIZ_' + quiz.id">{{ quiz.description }}</label>
+				</div>
+			</div>
+			<div id="BadgesArea">
+				<div class="TimerDisplay" id="CurrentQuestionTimer">Current question: {{ timeElapsed }}</div>
+				<div class="TimerDisplay" id="AverageTimer">Average time to correct answer: 1:12</div>
 			</div>
 		</div>
 	</footer>

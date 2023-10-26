@@ -71,6 +71,37 @@ footer
 	background-color: rgb(112, 2, 2);
 	border-bottom-left-radius: 10px;
 	border-bottom-right-radius: 10px;
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+}
+
+#QuizSelectionArea
+{
+}
+
+#BadgesArea
+{
+	color: black;
+}
+
+.TimerDisplay
+{
+	text-align: center;
+	border-radius: 5px;
+	padding: 5px;
+	width: fit-content;
+	margin: 10px auto;
+	font-size: 1.5em;
+}
+
+#CurrentQuestionTimer
+{
+	background-color: #3fa7d6;
+}
+
+#AverageTimer
+{
+	background-color: #59cd90;
 }
 
 h2
