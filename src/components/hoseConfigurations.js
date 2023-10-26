@@ -8,10 +8,11 @@ class HoseConfiguration
 	#flowRate = null;
 
 
-	constructor(description, components)
+	constructor(description, components, flowRate = null)
 	{
 		this.#description = description;
 		this.#components = components;
+		this.#flowRate = flowRate;
 	} // end HoseConfiguration constructor
 
 
@@ -21,10 +22,14 @@ class HoseConfiguration
 
 	get flowRate()
 	{
-		// Only calculate flow rate once, and save it for subsequent calls.
+		// If this.#flowRate is null, it needs to be calculated.
+		// If it is not null, either flow rate was set as a fixed value for this hose configuration,
+		// or it has previously been calculated and saved for subsequent requests, and we just return the known value.
+
 		if (this.#flowRate === null)
 		{
-			// Flow rate is determined by the nozzle. Find the nozzle component and return its flow rate.
+			// Flow rate is determined by the nozzle. Find the nozzle component to get its flow rate.
+			// Only calculate flow rate once, and save it for subsequent calls.
 			let nozzle = this.#components.find((component) => component.componentType === ComponentTypes.Nozzle);
 			if (nozzle === undefined)
 				throw new Error("Invalid configuration: No nozzle; unable to determine flow rate.");
@@ -38,15 +43,13 @@ class HoseConfiguration
 	get totalPressure()
 	{
 		let totalPressure = 0;
-		let flowRate = this.flowRate;
-		let allComponents = this.#components;
 		for (const currentComponent of this.#components)
 		{
 			let pressureContributionType = typeof currentComponent.pressureContribution;
 			if (pressureContributionType === "number")
 				totalPressure += currentComponent.pressureContribution;
 			else if (pressureContributionType === "function")
-				totalPressure += currentComponent.pressureContribution(flowRate);
+				totalPressure += currentComponent.pressureContribution(this.flowRate);
 			else
 				throw new Error(`Unable to determine pressure contribution of component ${currentComponent.description}`);
 		}
@@ -76,7 +79,7 @@ class ConfigurationsGroup
 } // end class ConfigurationsSet
 
 
-const GEVFC_ConfigurationsGroups = Object.freeze(
+let GEVFC_ConfigurationsGroups =
 [
 	new ConfigurationsGroup(
 		"GEVFC_BASE_CONFIGURATIONS",
@@ -329,8 +332,33 @@ const GEVFC_ConfigurationsGroups = Object.freeze(
 				new HoseConfiguration(
 					"Piercing nozzle",
 					[new Nozzle({ nozzleType: Nozzle.Types.Piercing })])
+			])),
+	
+	new ConfigurationsGroup(
+		"BASE_FRICTION_LOSS_ITEMS_COMMON",
+		"Base Friction Loss Items (Common)",
+		Object.freeze(
+			[
+				new HoseConfiguration("1 3/4\" hose at 150 gallons per minute, per 100\'", [new Hose(1 + 3/4, 100)], 150),
+				new HoseConfiguration("1 3/4\" hose at 185 gallons per minute, per 100\'", [new Hose(1 + 3/4, 100)], 185),
+				new HoseConfiguration("2 1/2\" hose at 250 gallons per minute, per 100\'", [new Hose(2 + 1/2, 100)], 250),
+				new HoseConfiguration("2 1/2\" hose at 300 gallons per minute, per 100\'", [new Hose(2 + 1/2, 100)], 300),
+				new HoseConfiguration("3\" hose at 150 gallons per minute, per 100\'", [new Hose(3, 100)], 150),
+				new HoseConfiguration("3\" hose at 185 gallons per minute, per 100\'", [new Hose(3, 100)], 185),
+				new HoseConfiguration("3\" hose at 250 gallons per minute, per 100\'", [new Hose(3, 100)], 250),
+				new HoseConfiguration("3\" hose at 300 gallons per minute, per 100\'", [new Hose(3, 100)], 300),
+				new HoseConfiguration("3\" hose at 400 gallons per minute, per 100\'", [new Hose(3, 100)], 400),
+				new HoseConfiguration("3\" hose at 500 gallons per minute, per 100\'", [new Hose(3, 100)], 500),
+				new HoseConfiguration("Aerial waterway (via direct inlet)", [new IntermediateAppliance(IntermediateAppliance.Types.AerialWaterway_Inlet)]),
+				new HoseConfiguration("Aerial waterway (from truck pump)", [new IntermediateAppliance(IntermediateAppliance.Types.AerialWaterway_Pump)]),
+				new HoseConfiguration("Wye", [new IntermediateAppliance(IntermediateAppliance.Types.Wye)]),
+				new HoseConfiguration("Siamese connection", [new IntermediateAppliance(IntermediateAppliance.Types.Siamese)]),
+				new HoseConfiguration("Master stream device", [new IntermediateAppliance(IntermediateAppliance.Types.MasterStreamDevice)]),
+				new HoseConfiguration("Standpipe system", [new IntermediateAppliance(IntermediateAppliance.Types.Standpipe)])
 			]))
-]);
+];
+GEVFC_ConfigurationsGroups.getById = function(id) { return this.find((configurationSet) => configurationSet.id === id); };
+Object.freeze(GEVFC_ConfigurationsGroups);
 
 
 export { HoseConfiguration, GEVFC_ConfigurationsGroups };

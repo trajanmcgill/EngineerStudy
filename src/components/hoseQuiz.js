@@ -49,18 +49,18 @@ class Quiz
 {
 	id;
 	description;
-	#askFlow;
-	#askPressure;
+	#flowQuestion;
+	#pressureQuestion;
 	#configurationSet;
 
 
-	constructor(id, description, configurationSet, askFlow = true, askPressure = true)
+	constructor(id, description, configurationSet, { flowQuestion, pressureQuestion })
 	{
 		this.id = id;
 		this.description = description;
 		this.#configurationSet = configurationSet;
-		this.#askFlow = askFlow;
-		this.#askPressure = askPressure;
+		this.#flowQuestion = flowQuestion;
+		this.#pressureQuestion = pressureQuestion;
 	}
 
 
@@ -86,10 +86,10 @@ class Quiz
 		{
 			// Supply the questions and answers related to this configuration.
 			let questions = [];
-			if (this.#askFlow)
-				questions.push(new Question("Flow rate (gallons per minute)", currentConfiguration.flowRate));
-			if (this.#askPressure)
-				questions.push(new Question("Discharge pressure (p.s.i.)", currentConfiguration.totalPressure));
+			if (this.#flowQuestion)
+				questions.push(new Question(this.#flowQuestion, currentConfiguration.flowRate));
+			if (this.#pressureQuestion)
+				questions.push(new Question(this.#pressureQuestion, currentConfiguration.totalPressure));
 
 			let problemDefinition =
 			{
@@ -115,8 +115,17 @@ class QuizApp
 		this.#UI_Class = UI_Class;
 		this.quizzes =
 		[
-			new Quiz("GEVFC_BASE_CONFIGURATIONS", "GEVFC Base Configurations", GEVFC_ConfigurationsGroups.find((configurationSet) => configurationSet.id === "GEVFC_BASE_CONFIGURATIONS"), true, true),
-			new Quiz("NOZZLES_ALONE", "Nozzle Flow Rates", GEVFC_ConfigurationsGroups.find((configurationSet) => configurationSet.id === "NOZZLES_ALONE"), true, false)
+			new Quiz("GEVFC_BASE_CONFIGURATIONS", "GEVFC Base Configurations",
+				GEVFC_ConfigurationsGroups.getById("GEVFC_BASE_CONFIGURATIONS"),
+				{ flowQuestion: "Flow rate (gallons per minute)", pressureQuestion: "Discharge pressure (p.s.i.)" } ),
+
+			new Quiz("NOZZLES_ALONE", "Nozzle Flow Rates",
+				GEVFC_ConfigurationsGroups.getById("NOZZLES_ALONE"),
+				{ flowQuestion: "Flow rate (gallons per minute)" } ),
+
+			new Quiz("BASE_FRICTION_LOSS_ITEMS_COMMON", "Base Friction Losses (Common)",
+				GEVFC_ConfigurationsGroups.getById("BASE_FRICTION_LOSS_ITEMS_COMMON"),
+				{ pressureQuestion: "Friction loss (p.s.i.)" } ),
 		];
 		this.currentQuiz = this.quizzes[0];
 		this.UI = new this.#UI_Class(`Welcome to Hose Quiz, version ${Version}.`);
@@ -189,7 +198,7 @@ class QuizApp
 	}
 
 
-	async #offerQuiz(quiz)
+	async #offerQuiz()
 	{
 		this.UI.writeLine(`\n\nStarting Quiz: ${this.currentQuiz.description}`, new TextFormat({ textStyles: [FormatTypes.Bold, FormatTypes.Underline], textColor: "darkgoldenrod"}));
 		let problemGenerator = this.currentQuiz.getProblems();
