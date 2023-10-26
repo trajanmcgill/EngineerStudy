@@ -253,17 +253,13 @@ let GEVFC_ConfigurationsGroups =
 							}),
 						new IntermediateAppliance(IntermediateAppliance.Types.MasterStreamDevice)
 					]),
-				new HoseConfiguration(
 
+				new HoseConfiguration(
 					"Deck gun with fog nozzle",
 					[
-						new Nozzle(
-							{
-								nozzleType: Nozzle.Types.MasterFog,
-							}),
+						new Nozzle({ nozzleType: Nozzle.Types.MasterFog }),
 						new IntermediateAppliance(IntermediateAppliance.Types.MasterStreamDevice)
-					]),
-						
+					])						
 			])),
 
 	new ConfigurationsGroup(
