@@ -261,7 +261,6 @@ let GEVFC_ConfigurationsGroups =
 	
 				new HoseConfiguration(
 					function() { return `High-rise pack on standpipe, to ${this.elevationText}, supplied by ${this.hoseText(5)}`; },
-					//"High-rise pack on standpipe (before elevation or hose running to standpipe is counted)",
 					[
 						new Nozzle(
 							{

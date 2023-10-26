@@ -244,7 +244,7 @@ class QuizApp
 				}
 				else if (baseComponent.componentType === ComponentTypes.Hose && baseComponent.diameter === 5)
 				{
-					let maxLengths = (HoseConfiguration.Max5Inch - HoseConfiguration.Min5Inch) / HoseConfiguration.Multiples_5Inch;
+					let maxLengths = (HoseConfiguration.Max5InchToStandpipe - HoseConfiguration.Min5InchToStandpipe) / HoseConfiguration.Multiples_5Inch;
 					let numLengths = Math.floor(Math.random() * (maxLengths + 1));
 					changes = { length: numLengths * HoseConfiguration.Multiples_5Inch };
 				}
