@@ -261,6 +261,73 @@ const GEVFC_ConfigurationsGroups = Object.freeze(
 						new IntermediateAppliance(IntermediateAppliance.Types.MasterStreamDevice)
 					]),
 						
+			])),
+
+	new ConfigurationsGroup(
+		"NOZZLES_ALONE",
+		"Nozzles Alone",
+		Object.freeze(
+			[
+				new HoseConfiguration(
+					"1 3/4\" hand line fog nozzle (trash line, default setting)",
+					[new Nozzle({ nozzleType: Nozzle.Types.HandFogConventional_TrashLine, diameter: 1 + 1/2 })]),
+				new HoseConfiguration(
+					"1 3/4\" hand line fog nozzle (other than trash line)",
+					[new Nozzle({ nozzleType: Nozzle.Types.HandFogLowPressure, diameter: 1 + 1/2 })]),
+				new HoseConfiguration(
+					"2 1/2\" hand line fog nozzle",
+					[new Nozzle({ nozzleType: Nozzle.Types.HandFogLowPressure, diameter: 2 + 1/2 })]),
+				new HoseConfiguration(
+					"Master stream fog nozzle",
+					[new Nozzle({ nozzleType: Nozzle.Types.MasterFog })]),
+
+				new HoseConfiguration(
+					"Smooth bore nozzle, 15/16\" tip, at hand line pressure",
+					[new Nozzle({ nozzleType: Nozzle.Types.HandSmooth, diameter: 15/16 })]),															
+				new HoseConfiguration(
+					"Smooth bore nozzle, 1\" tip, at hand line pressure",
+					[new Nozzle({ nozzleType: Nozzle.Types.HandSmooth, diameter: 1 })]),
+				new HoseConfiguration(
+					"Smooth bore nozzle, 1 1/8\" tip, at hand line pressure",
+					[new Nozzle({ nozzleType: Nozzle.Types.HandSmooth, diameter: 1 + 1/8 })]),
+				new HoseConfiguration(
+					"Smooth bore nozzle, 1 1/4\" tip, at hand line pressure",
+					[new Nozzle({ nozzleType: Nozzle.Types.HandSmooth, diameter: 1 + 1/4 })]),
+				new HoseConfiguration(
+					"Smooth bore nozzle, 1 1/2\" tip, at 50 p.s.i.",
+					[new Nozzle({ nozzleType: Nozzle.Types.HandSmooth, diameter: 1 + 1/2 })]),
+
+				new HoseConfiguration(
+					"Smooth bore nozzle, 1 1/4\" tip, at master stream pressure",
+					[new Nozzle({ nozzleType: Nozzle.Types.MasterSmooth, diameter: 1 + 1/4 })]),
+				new HoseConfiguration(
+					"Smooth bore nozzle, 1 3/8\" tip, at master stream pressure",
+					[new Nozzle({ nozzleType: Nozzle.Types.MasterSmooth, diameter: 1 + 3/8 })]),
+				new HoseConfiguration(
+					"Smooth bore nozzle, 1 1/2\" tip, at master stream pressure",
+					[new Nozzle({ nozzleType: Nozzle.Types.MasterSmooth, diameter: 1 + 1/2 })]),
+				new HoseConfiguration(
+					"Smooth bore nozzle, 1 3/4\" tip, at master stream pressure",
+					[new Nozzle({ nozzleType: Nozzle.Types.MasterSmooth, diameter: 1 + 3/4 })]),
+				new HoseConfiguration(
+					"Smooth bore nozzle, 2\" tip, at master stream pressure",
+					[new Nozzle({ nozzleType: Nozzle.Types.MasterSmooth, diameter: 2 })]),
+
+	
+				new HoseConfiguration(
+					"Foam eductor",
+					[new Nozzle({ nozzleType: Nozzle.Types.FoamEductor })]),
+				new HoseConfiguration(
+					"Cellar nozzle (backup engines)",
+					[new Nozzle({ nozzleType: Nozzle.Types.Cellar, identifier: "E60/63" })]),
+				new HoseConfiguration(
+					"Cellar nozzle (E61)",
+					[new Nozzle({ nozzleType: Nozzle.Types.Cellar, identifier: "E61" })]),
+				new HoseConfiguration(
+					"Cellar nozzle (E62)",
+					[new Nozzle({ nozzleType: Nozzle.Types.Cellar, identifier: "E62" })])
+				
+				// ADD CODE HERE: Piercing nozzle(s)
 			]))
 ]);
 

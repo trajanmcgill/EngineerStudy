@@ -1,11 +1,14 @@
 import { UserPromptTypes, FormatTypes } from "./ui";
 
 
+const TerminalHeight = 650;
+
+
 class CLI
 {
-	#terminal;
-	#readResolveFunc = null;
-	#readFailureFunc = null;
+	terminal;
+	readResolveFunc = null;
+	readFailureFunc = null;
 
 
 	constructor(greetingText, readyFunction)
@@ -17,32 +20,54 @@ class CLI
 	#initializeCLI(greetingText)
 	{
 		let processInput = (command) => { this.#processInput(command); };
-		this.#terminal = $("#Terminal").terminal(
+		this.terminal = $("#Terminal").terminal(
 			(command) => { processInput(command); },
-			{ greetings: greetingText });
+			{
+				greetings: greetingText,
+				height: TerminalHeight
+			});
 	}
 
 
 	#startRead(readResolveFunc, readFailureFunc)
 	{
-		this.#readResolveFunc = readResolveFunc;
-		this.#readFailureFunc = readFailureFunc;
-		this.#terminal.enable();
+		this.readResolveFunc = readResolveFunc;
+		this.readFailureFunc = readFailureFunc;
+		this.terminal.enable();
 	}
 
 
 	#processInput(command)
 	{
 		// Resolve the promise that was created in getInput()
-		this.#clearCustomPrompt();
-		if (this.#readResolveFunc !== null)
-			this.#readResolveFunc(command);
+		this.clearCustomPrompt();
+		let resolver = this.readResolveFunc;
+		if (resolver !== null)
+		{
+			this.readResolveFunc = null;
+			this.readFailureFunc = null;
+			resolver(command);
+		}
 	}
 
 
-	#clearCustomPrompt()
+	clearCustomPrompt()
 	{
-		this.#terminal.set_prompt("> ");
+		this.terminal.set_prompt("> ");
+	}
+
+
+	cancelInput()
+	{
+		// Fail the promise that was created in getInput()
+		this.clearCustomPrompt();
+		let failureFunc = this.readFailureFunc;
+		if (failureFunc !== null)
+		{
+			this.readResolveFunc = null;
+			this.readFailureFunc = null;
+			failureFunc();
+		}
 	}
 
 
@@ -55,7 +80,7 @@ class CLI
 			if (promptType === undefined || promptType === UserPromptTypes.Primary)
 				this.writeLine(userPrompt);
 			else
-				this.#terminal.set_prompt(`${userPrompt}> `);
+				this.terminal.set_prompt(`${userPrompt}> `);
 		}
 		return new Promise(
 			(resolveFunc, rejectFunc) =>
@@ -89,7 +114,7 @@ class CLI
 			postfix = "]";
 		}
 
-		this.#terminal.echo(prefix + text + postfix);
+		this.terminal.echo(prefix + text + postfix);
 	}
 
 }
