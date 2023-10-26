@@ -31,20 +31,60 @@ body
 	min-height: 100vh;
 }
 
+header
+{
+	position: relative;
+	font-family: monospace;
+}
+
+#TitleBar
+{
+	position: absolute;
+	bottom: 0;
+	background-color: rgb(112, 2, 2);
+	#background-color: rgb(75, 57, 12);
+	width: 100%;
+	border-top-left-radius: 10px;
+	border-top-right-radius: 10px;
+}
+
 h1
 {
 	font-size: 1.45em;
 	line-height: 1.45;
 	text-align: center;
-	color: #cccccc;
+	color: #dddddd;
+	#color: black;
 	font-weight: normal;
+	margin-top: 8px;
+	margin-bottom: 8px;
+}
+
+footer
+{
+	font-family: monospace;
+}
+
+#FooterBar
+{
+	padding: 15px;
+	background-color: rgb(112, 2, 2);
+	border-bottom-left-radius: 10px;
+	border-bottom-right-radius: 10px;
 }
 
 h2
 {
-	font-size: 1.25em;
-	line-height: 1;
-	margin-bottom: 10px;
+	margin-top: 0;
+	font-size: 1em;
+	margin-bottom: 2px;
+	color: #dddddd;
+}
+
+label.QuizChoice
+{
+	font-size: 0.9em;
+	font-weight: normal;
 }
 
 button {
@@ -96,7 +136,6 @@ button:focus-visible {
 
 #Terminal
 {
-	border-radius: 10px;
 }
 
 .terminal

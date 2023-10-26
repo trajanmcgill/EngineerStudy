@@ -155,7 +155,7 @@ class QuizApp
 		while (true)
 		{
 			try { await this.#offerQuiz(); }
-			catch (err) { this.UI.writeLine("** Ending quiz. **\n", new TextFormat({ textColor: "mediumslateblue" })); }
+			catch (err) { this.UI.writeLine("** Ending quiz. **\n", new TextFormat({ textColor: "#59cd90" })); }
 		}
 	}
 
@@ -216,18 +216,18 @@ class QuizApp
 
 			if (evaluationResult.resultType === EvaluationResultType.Correct_Exact)
 			{
-				this.UI.writeLine("Correct!", new TextFormat({ textColor: "white" }));
+				this.UI.writeLine("Correct!", new TextFormat({ textColor: "#f9eae1" }));
 				answeredCorrectly = true;
 			}
 			else if (evaluationResult.resultType === EvaluationResultType.Correct_Rounded)
 			{
-				this.UI.writeLine(`Correct (rounded from ${evaluationResult.correctAnswer})`, new TextFormat({ textColor: "white" }));
+				this.UI.writeLine(`Correct (rounded from ${evaluationResult.correctAnswer})`, new TextFormat({ textColor: "#f9eae1" }));
 				answeredCorrectly = true;
 			}
 			else
 			{
 				let answerDisplayString = showExpectedAnswer ? ` Expected answer: ${evaluationResult.correctAnswer}.` : "";
-				this.UI.writeLine(`Incorrect.${answerDisplayString}`, new TextFormat({ textStyles: [FormatTypes.Bold], textColor: "darkgoldenrod" }));
+				this.UI.writeLine(`Incorrect.${answerDisplayString}`, new TextFormat({ textStyles: [FormatTypes.Bold], textColor: "#e57a44" }));
 			}
 
 		} while (!answeredCorrectly && !moveOnEvenIfIncorrect);
@@ -253,11 +253,11 @@ class QuizApp
 
 	async #offerQuiz()
 	{
-		this.UI.writeLine(`\n\nStarting Quiz: ${this.currentQuiz.description}`, new TextFormat({ textStyles: [FormatTypes.Bold, FormatTypes.Underline], textColor: "darkgoldenrod"}));
+		this.UI.writeLine(`\n\nStarting Quiz: ${this.currentQuiz.description}`, new TextFormat({ textStyles: [FormatTypes.Bold, FormatTypes.Underline], textColor: "#59cd90"}));
 		let problemGenerator = this.currentQuiz.getProblems();
 		for (let nextProblem = problemGenerator.next(); !nextProblem.done; nextProblem = problemGenerator.next())
 		{
-			this.UI.writeLine(`\nScenario: ${nextProblem.value.scenario}`, new TextFormat({ textStyles: [FormatTypes.Bold], textColor: "cornflowerblue" }));
+			this.UI.writeLine(`\nScenario: ${nextProblem.value.scenario}`, new TextFormat({ textStyles: [FormatTypes.Bold], textColor: "#3fa7d6" }));
 			for (const question of nextProblem.value.questions)
 				await this.#askQuestion(question, false, false);
 		}

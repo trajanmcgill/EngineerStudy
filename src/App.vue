@@ -25,7 +25,7 @@
 
 <template>
 	<header>
-		<h1>Fire Apparatus Engineer Study</h1>
+		<div id="TitleBar"><h1>Fire Apparatus Engineer Study</h1></div>
 	</header>
 
 	<main>
@@ -33,10 +33,12 @@
 	</main>
 
 	<footer>
-		<h2>Quiz:</h2>
-		<div v-for="quiz in vQuizApp.quizzes" :key="quiz.id">
-			<input name="QuizSelection" v-bind:id="'QUIZ_' + quiz.id" type="radio" v-bind:value="quiz.id" v-model="vCurrentQuiz" />
-			<label v-bind:for="'QUIZ_' + quiz.id">{{ quiz.description }}</label>
+		<div id="FooterBar">
+			<h2>Active Quiz:</h2>
+			<div v-for="quiz in vQuizApp.quizzes" :key="quiz.id">
+				<input name="QuizSelection" v-bind:id="'QUIZ_' + quiz.id" type="radio" v-bind:value="quiz.id" v-model="vCurrentQuiz" />
+				<label class="QuizChoice" v-bind:for="'QUIZ_' + quiz.id">{{ quiz.description }}</label>
+			</div>
 		</div>
 	</footer>
 </template>
