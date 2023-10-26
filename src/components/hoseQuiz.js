@@ -115,7 +115,7 @@ class QuizApp
 		this.#UI_Class = UI_Class;
 		this.quizzes =
 		[
-			new Quiz("GEVFC_BASE_CONFIGURATIONS", "GEVFC Base Configurations",
+			new Quiz("GEVFC_BASE_CONFIGURATIONS", "GEVFC Base Starting Point Configurations",
 				GEVFC_ConfigurationsGroups.getById("GEVFC_BASE_CONFIGURATIONS"),
 				{ flowQuestion: "Flow rate (gallons per minute)", pressureQuestion: "Discharge pressure (p.s.i.)" } ),
 

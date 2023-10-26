@@ -1,3 +1,24 @@
+function diameterDescription(diameter)
+{
+	let wholePart = Math.trunc(diameter);
+	let fractionalPart = diameter - wholePart;
+	let fractionalText;
+
+	if (fractionalPart === 0)
+		fractionalText = "";
+	else if (fractionalPart % 0.5 === 0)
+		fractionalText = " 1/2";
+	else if (fractionalPart % 0.25 === 0)
+		fractionalPart = ` ${fractionalPart / 0.25}/4`;
+	else if (fractionalPart % 0.125 === 0)
+		fractionalPart = ` ${fractionalPart / 0.125}/8`;
+	else
+		return `${diameter}\"`;
+
+	return `${wholePart}${fractionalText}\"`;
+}
+
+
 const ComponentTypes = (function()
 {
 	return Object.freeze(
@@ -224,29 +245,28 @@ const Hose = (function()
 	{
 		#componentType;
 		#diameter;
-		#length;
+		length;
 		#frictionLossTable;
 	
 		constructor(diameter, length)
 		{
 			this.#componentType = ComponentTypes.Hose;
-			this.#length = length;
+			this.length = length;
 			this.#diameter = diameter;
 			this.#frictionLossTable = HoseFrictionLossTables.find((frictionLossTable) => frictionLossTable.diameter === diameter);
 		}
 		
 		get componentType() { return this.#componentType; }
+		get description() { return `${this.length}\' of ${diameterDescription(this.#diameter)} hose` }
 		get diameter() { return this.#diameter; }
-		get length() { return this.#length; }
-		get description() { return `${this.#length} feet of ${this.#diameter.description} hose` }
 	
 		getFrictionLoss(flowRate)
 		{
 			let precalculatedValue = this.#frictionLossTable.precalculatedFrictionLosses.find((entry) => entry.flowRate === flowRate);
 			if (precalculatedValue === undefined)
-				return this.#frictionLossTable.formulaPer100Feet(flowRate) * this.#length / 100;
+				return this.#frictionLossTable.formulaPer100Feet(flowRate) * this.length / 100;
 			else
-				return precalculatedValue.frictionLossPer100ft * this.#length / 100;
+				return precalculatedValue.frictionLossPer100ft * this.length / 100;
 		}
 		
 		get pressureContribution()
@@ -294,15 +314,21 @@ const IntermediateAppliance = (function()
 
 	class IntermediateAppliance
 	{
-		#type;
+		#componentType;
+		#intermediateApplianceType;
 
 		static get Types() { return IntermediateApplianceTypes; }
 
-		constructor(type) { this.#type = type; }
+		constructor(type)
+		{
+			this.#componentType = ComponentTypes.IntermediateAppliance;
+			this.#intermediateApplianceType = type;
+		}
 
-		get typeID() { return this.#type.id; }
-		get description() { return this.#type.description; }
-		get pressureContribution() { return this.#type.frictionLoss; }
+		get componentType() { return this.#componentType; }
+		get intermediateApplianceType() { return this.#intermediateApplianceType.id; }
+		get description() { return this.#intermediateApplianceType.description; }
+		get pressureContribution() { return this.#intermediateApplianceType.frictionLoss; }
 	} // end class IntermediateAppliance
 
 	return Object.freeze(IntermediateAppliance);
@@ -315,13 +341,18 @@ const Elevation = (function()
 
 	class Elevation
 	{
-		#floorCount;
+		#componentType;
+		floorCount;
 
-		constructor(floorCount) { this.#floorCount = floorCount; }
+		constructor(floorCount)
+		{
+			this.#componentType = ComponentTypes.Elevation;
+			this.floorCount = floorCount;
+		}
 
-		get floorCount() { return this.#floorCount; }
-		get description() { return `elevation of ${Math.abs(this.#floorCount)} floors ${this.#floorCount >=0 ? "above" : "below"} ground level`; }
-		get pressureContribution() { return this.#floorCount * PSI_Per_Floor; }
+		get componentType() { return this.#componentType; }
+		get description() { return `elevation of ${Math.abs(this.floorCount)} floors ${this.floorCount >=0 ? "above" : "below"} ground level`; }
+		get pressureContribution() { return this.floorCount * PSI_Per_Floor; }
 	}
 
 	return Object.freeze(Elevation);

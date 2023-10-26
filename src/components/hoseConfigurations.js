@@ -16,8 +16,24 @@ class HoseConfiguration
 	} // end HoseConfiguration constructor
 
 
+	static get MinElevation() { return -1; }
+	static get MaxElevation() { return 6; }
+
+	static get Min3Inch() { return 0; }
+	static get Max3Inch() { return 600; }
+	static get Multiples_3Inch() { return 50; }
+
+	static get Min5InchToStandpipe() { return 50; }
+	static get Max5InchToStandpipe() { return 1000; }
+	static get Multiples_5Inch() { return 50; }
+
+
 	get description()
-	{ return this.#description; }
+	{ return (typeof this.#description === "function" ? this.#description() : this.#description); }
+
+
+	get components()
+	{ return this.#components; }
 
 
 	get flowRate()
@@ -57,6 +73,31 @@ class HoseConfiguration
 		return totalPressure;
 	} // end totalPressure property
 
+
+	get elevationText()
+	{
+		let elevation = this.components.find((component) => component.componentType === ComponentTypes.Elevation);
+		if (elevation.floorCount == -1)
+			return "basement";
+		if (elevation.floorCount == 0)
+			return "ground floor";
+		if (elevation.floorCount > 0)
+			return `floor ${elevation.floorCount + 1}`;
+		throw new Error(`Invalid floor count: ${elevation.floorCount}`);
+	} // end elevationText property
+
+
+	hoseText(diameter)
+	{
+		let matchingHose = this.components.find(
+			(component) =>
+				component.componentType === ComponentTypes.Hose
+				&& component.diameter === diameter
+			);
+		
+		return matchingHose.description;
+	} // end hostText()
+
 } // end class HoseConfiguration
 
 
@@ -87,29 +128,31 @@ let GEVFC_ConfigurationsGroups =
 		Object.freeze(
 			[
 				new HoseConfiguration(
-					"1 3/4\" crosslay to ground floor",
+					function() { return `1 3/4\" crosslay to ${this.elevationText}`; },
 					[
 						new Nozzle(
 							{
 								nozzleType: Nozzle.Types.HandFogLowPressure,
 								diameter: 1 + 1/2
 							}),
-						new Hose(1.75, 200)
+						new Hose(1.75, 200),
+						new Elevation(0)
 					]),
 				
 				new HoseConfiguration(
-					"2 1/2\" crosslay to ground floor",
+					function() { return `2 1/2\" crosslay to ${this.elevationText}`; },
 					[
 						new Nozzle(
 							{
 								nozzleType: Nozzle.Types.HandSmooth,
 								diameter: 1 + 1/4
 							}),
-						new Hose(2.5, 200)
+						new Hose(2.5, 200),
+						new Elevation(0)
 					]),
 
 				new HoseConfiguration(
-					"1 3/4\" skid load with 0\' of 3\", to ground floor",
+					function() { return `1 3/4\" skid load with ${this.hoseText(3)}, to ${this.elevationText}`; },
 					[
 						new Nozzle(
 							{
@@ -117,11 +160,13 @@ let GEVFC_ConfigurationsGroups =
 								diameter: 1 + 1/2
 							}),
 						new Hose(1.75, 150),
-						new IntermediateAppliance(IntermediateAppliance.Types.Wye)
+						new Elevation(0),
+						new IntermediateAppliance(IntermediateAppliance.Types.Wye),
+						new Hose(3, 0)
 					]),
 
 				new HoseConfiguration(
-					"1 3/4\" skid load with fog tip removed and 0\' of 3\", to ground floor",
+					function() { return `1 3/4\" skid load with fog tip removed and ${this.hoseText(3)}, to ${this.elevationText}`; },
 					[
 						new Nozzle(
 							{
@@ -129,49 +174,57 @@ let GEVFC_ConfigurationsGroups =
 								diameter: 15/16
 							}),
 						new Hose(1.75, 150),
-						new IntermediateAppliance(IntermediateAppliance.Types.Wye)
+						new Elevation(0),
+						new IntermediateAppliance(IntermediateAppliance.Types.Wye),
+						new Hose(3, 0)
 					]),
 
 				new HoseConfiguration(
-					"2 1/2\" skid load with default tip and 0\' of 3\", to ground floor",
+					function() { return `2 1/2\" skid load with default tip and ${this.hoseText(3)}, to ${this.elevationText}`; },
 					[
 						new Nozzle(
 							{
 								nozzleType: Nozzle.Types.HandSmooth,
 								diameter: 1 + 1/8
 							}),
-						new Hose(2.5, 150)
+						new Hose(2.5, 150),
+						new Elevation(0),
+						new Hose(3, 0)
 					]),
 
 				new HoseConfiguration(
-					"2 1/2\" skid load with 1 1/4\" tip and 0\' of 3\", to ground floor",
+					function() { return `2 1/2\" skid load with 1 1/4\" tip and ${this.hoseText(3)}, to ${this.elevationText}`; },
 					[
 						new Nozzle(
 							{
 								nozzleType: Nozzle.Types.HandSmooth,
 								diameter: 1 + 1/4
 							}),
-						new Hose(2.5, 150)
+						new Hose(2.5, 150),
+						new Elevation(0),
+						new Hose(3, 0)
 					]),
 
 				new HoseConfiguration(
-					"Blitzfire with 1 1/4\" tip and 0\' of 3\"",
+					function() { return `Blitzfire with 1 1/4\" tip and ${this.hoseText(3)}`; },
 					[
 						new Nozzle(
 							{
 								nozzleType: Nozzle.Types.MasterSmooth,
 								diameter: 1 + 1/4
-							})
+							}),
+						new Hose(3, 0)
 					]),
 
 				new HoseConfiguration(
-					"Blitzfire with 1 1/2\" tip and 0\' of 3\"",
+					function() { return `Blitzfire with 1 1/2\" tip and ${this.hoseText(3)}`; },
 					[
 						new Nozzle(
 							{
 								nozzleType: Nozzle.Types.HandSmooth,
 								diameter: 1 + 1/2
-							})
+							}),
+						new Hose(3, 0)
 					]),
 	
 				new HoseConfiguration(
@@ -198,7 +251,8 @@ let GEVFC_ConfigurationsGroups =
 					]),
 	
 				new HoseConfiguration(
-					"High-rise pack on standpipe (before elevation or hose running to standpipe is counted)",
+					function() { return `High-rise pack on standpipe, to ${this.elevationText}, supplied by ${this.hoseText(5)}`; },
+					//"High-rise pack on standpipe (before elevation or hose running to standpipe is counted)",
 					[
 						new Nozzle(
 							{
@@ -207,7 +261,9 @@ let GEVFC_ConfigurationsGroups =
 							}),
 						new Hose(1.75, 150),
 						new IntermediateAppliance(IntermediateAppliance.Types.Wye),
-						new IntermediateAppliance(IntermediateAppliance.Types.Standpipe)
+						new IntermediateAppliance(IntermediateAppliance.Types.Standpipe),
+						new Elevation(0),
+						new Hose(5, 0)
 					]),
 	
 				new HoseConfiguration(
