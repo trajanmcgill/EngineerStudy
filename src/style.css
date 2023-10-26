@@ -33,9 +33,11 @@ body
 
 h1
 {
-	font-size: 2em;
-	line-height: 1.1;
+	font-size: 1.45em;
+	line-height: 1.45;
 	text-align: center;
+	color: #cccccc;
+	font-weight: normal;
 }
 
 h2
@@ -90,6 +92,11 @@ button:focus-visible {
   button {
     background-color: #f9f9f9;
   }
+}
+
+#Terminal
+{
+	border-radius: 10px;
 }
 
 .terminal
