@@ -80,13 +80,13 @@ const Nozzle = (function()
 				{ identifier: "E62", flowRate: 500 }
 			])
 		}),
-		/*
-		CHANGE CODE HERE
 		Piercing:
 		{
 			description: "Piercing nozzle",
-			nozzlePressure: 100
+			nozzlePressure: 100,
+			flowRate: 125
 		},
+		/* ADD CODE HERE
 		SprinklerSystem:
 		{},
 		*/

@@ -325,9 +325,10 @@ const GEVFC_ConfigurationsGroups = Object.freeze(
 					[new Nozzle({ nozzleType: Nozzle.Types.Cellar, identifier: "E61" })]),
 				new HoseConfiguration(
 					"Cellar nozzle (E62)",
-					[new Nozzle({ nozzleType: Nozzle.Types.Cellar, identifier: "E62" })])
-				
-				// ADD CODE HERE: Piercing nozzle(s)
+					[new Nozzle({ nozzleType: Nozzle.Types.Cellar, identifier: "E62" })]),
+				new HoseConfiguration(
+					"Piercing nozzle",
+					[new Nozzle({ nozzleType: Nozzle.Types.Piercing })])
 			]))
 ]);
 
