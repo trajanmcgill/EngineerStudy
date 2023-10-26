@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+	"copyScripts": "cp node_modules/jquery/dist/jquery.min.js public && cp node_modules/jquery.terminal/js/jquery.terminal.min.js public",
+    "build": "npm run copyScripts && vite build",
     "preview": "vite preview"
   },
   "dependencies": {

@@ -42,7 +42,6 @@ header
 	position: absolute;
 	bottom: 0;
 	background-color: rgb(112, 2, 2);
-	#background-color: rgb(75, 57, 12);
 	width: 100%;
 	border-top-left-radius: 10px;
 	border-top-right-radius: 10px;
@@ -54,7 +53,6 @@ h1
 	line-height: 1.45;
 	text-align: center;
 	color: #dddddd;
-	#color: black;
 	font-weight: normal;
 	margin-top: 8px;
 	margin-bottom: 8px;
@@ -73,10 +71,6 @@ footer
 	border-bottom-right-radius: 10px;
 	display: grid;
 	grid-template-columns: 1fr 1fr 1fr;
-}
-
-#QuizSelectionArea
-{
 }
 
 #TimersArea
@@ -163,10 +157,6 @@ button:focus-visible {
   button {
     background-color: #f9f9f9;
   }
-}
-
-#Terminal
-{
 }
 
 .terminal
