@@ -37,6 +37,11 @@ header
 	font-family: monospace;
 }
 
+main
+{
+	height: 100%;
+}
+
 #TitleBar
 {
 	position: absolute;
@@ -143,7 +148,7 @@ button:focus-visible {
 	margin: 0 auto;
 	padding: 0;
 	display: grid;
-	grid-template-rows: 75px 650px 1fr;
+	grid-template-rows: 45px 1fr 140px;
 }
 
 @media (prefers-color-scheme: light) {

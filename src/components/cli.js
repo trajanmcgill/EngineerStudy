@@ -1,9 +1,6 @@
 import { UserPromptTypes, FormatTypes } from "./ui";
 
 
-const TerminalHeight = 650;
-
-
 class CLI
 {
 	terminal;
@@ -19,13 +16,31 @@ class CLI
 	
 	#initializeCLI(greetingText)
 	{
+		let sizeFixer = this.fixTerminalSize;
+
 		let processInput = (command) => { this.#processInput(command); };
+
+		let TerminalHeight = document.getElementById("Main").clientHeight;
 		this.terminal = $("#Terminal").terminal(
 			(command) => { processInput(command); },
 			{
 				greetings: greetingText,
 				height: TerminalHeight
 			});
+
+		let terminal = this.terminal;
+		window.addEventListener("resize", function () { sizeFixer(terminal); });
+	}
+
+
+	fixTerminalSize(terminalObject)
+	{
+		let headerHeight = document.getElementById("Header").offsetHeight,
+			footerHeight = document.getElementById("Footer").offsetHeight,
+			windowHeight = document.documentElement.clientHeight,
+			terminalHeight = windowHeight - headerHeight - footerHeight;
+		window.setTimeout(() => { terminalObject.resize("100%", terminalHeight); }, 1);
+		console.debug(terminalHeight);
 	}
 
 

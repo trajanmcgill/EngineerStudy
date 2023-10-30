@@ -41,15 +41,15 @@
 </script>
 
 <template>
-	<header>
+	<header id="Header">
 		<div id="TitleBar"><h1>Fire Apparatus Engineer Study</h1></div>
 	</header>
 
-	<main>
+	<main id="Main">
 		<div id="Terminal"></div>
 	</main>
 
-	<footer>
+	<footer id="Footer">
 		<div id="FooterBar">
 			<div id="QuizSelectionArea">
 				<h2>Active Quiz:</h2>
