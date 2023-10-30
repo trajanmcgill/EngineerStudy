@@ -16,7 +16,7 @@
 	{ timeElapsed.value = newValue; }
 
 	function updateAvgAnswerTime(newValue)
-	{ avgAnswerTime = newValue; }
+	{ avgAnswerTime.value = newValue; }
 
 	function updateStreak(newValue)
 	{ streak.value = newValue; }
