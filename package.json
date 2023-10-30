@@ -5,7 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-	"copyScripts": "cp node_modules/jquery/dist/jquery.min.js public && cp node_modules/jquery.terminal/js/jquery.terminal.min.js public",
+	"copyScriptsLinux": "cp node_modules/jquery/dist/jquery.min.js public && cp node_modules/jquery.terminal/js/jquery.terminal.min.js public",
+	"copyScriptsWindows": "copy node_modules\\jquery\\dist\\jquery.min.js public && copy node_modules\\jquery.terminal\\js\\jquery.terminal.min.js public",
+	"copyScripts": "npm run copyScriptsLinux || npm run copyScriptsWindows",
     "build": "npm run copyScripts && vite build",
     "preview": "vite preview"
   },
