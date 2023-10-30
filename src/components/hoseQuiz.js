@@ -3,7 +3,7 @@ import { HoseConfiguration, ConfigurationsGroup, GEVFC_ConfigurationsGroups } fr
 import { UserPromptTypes, FormatTypes, TextFormat } from "./ui";
 
 
-const Version = "1.0";
+const Version = "1.0.1";
 const TimerRegularity = 250; // update the timer view every 0.25 seconds
 
 
