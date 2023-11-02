@@ -1,5 +1,6 @@
-import { ComponentTypes, Hose } from "./engineeringCard";
-import { HoseConfiguration, ConfigurationsGroup, GEVFC_ConfigurationsGroups } from "./hoseConfigurations";
+import { ComponentTypes } from "./engineering/components";
+import { DeliveryConfiguration, ConfigurationsGroup } from "./engineering/deliveryConfigurations";
+import { GEVFC_ConfigurationsGroups } from "./GEVFC/GEVFC_Configurations";
 import { UserPromptTypes, FormatTypes, TextFormat } from "./ui";
 
 
@@ -266,25 +267,25 @@ class QuizApp
 			{
 				let changes = {};
 				if (baseComponent.componentType === ComponentTypes.Elevation)
-					changes = { floorCount: Math.floor(Math.random() * (HoseConfiguration.MaxFloorAboveGround - HoseConfiguration.MinFloorAboveGround + 1)) + HoseConfiguration.MinFloorAboveGround };
+					changes = { floorCount: Math.floor(Math.random() * (DeliveryConfiguration.MaxFloorAboveGround - DeliveryConfiguration.MinFloorAboveGround + 1)) + DeliveryConfiguration.MinFloorAboveGround };
 				else if (baseComponent.componentType === ComponentTypes.Hose && baseComponent.diameter === 3)
 				{
-					let maxLengths = (HoseConfiguration.Max3Inch - HoseConfiguration.Min3Inch) / HoseConfiguration.Multiples_3Inch;
+					let maxLengths = (DeliveryConfiguration.Max3Inch - DeliveryConfiguration.Min3Inch) / DeliveryConfiguration.Multiples_3Inch;
 					let numLengths = Math.floor(Math.random() * (maxLengths + 1));
-					changes = { length: numLengths * HoseConfiguration.Multiples_3Inch };
+					changes = { length: numLengths * DeliveryConfiguration.Multiples_3Inch };
 				}
 				else if (baseComponent.componentType === ComponentTypes.Hose && baseComponent.diameter === 5)
 				{
-					let maxLengths = (HoseConfiguration.Max5InchToStandpipe - HoseConfiguration.Min5InchToStandpipe) / HoseConfiguration.Multiples_5Inch;
+					let maxLengths = (DeliveryConfiguration.Max5InchToStandpipe - DeliveryConfiguration.Min5InchToStandpipe) / DeliveryConfiguration.Multiples_5Inch;
 					let numLengths = Math.floor(Math.random() * (maxLengths + 1));
-					changes = { length: numLengths * HoseConfiguration.Multiples_5Inch };
+					changes = { length: numLengths * DeliveryConfiguration.Multiples_5Inch };
 				}
 				components.push(baseComponent.duplicate(changes));
 			}
 
 			// Create a new hose configuration with all these components.
 			realisticConfigurations.push(
-				new HoseConfiguration(
+				new DeliveryConfiguration(
 					baseConfiguration.descriptionFunction,
 					components,
 					baseConfiguration._flowRate));
