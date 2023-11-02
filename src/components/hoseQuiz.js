@@ -1,6 +1,6 @@
-import { ComponentTypes } from "./engineering/components";
-import { DeliveryConfiguration, ConfigurationsGroup } from "./engineering/deliveryConfigurations";
-import { GEVFC_ConfigurationsGroups } from "./GEVFC/GEVFC_Configurations";
+import { ComponentTypes, ComponentGroup } from "./engineering/components";
+import { ConfigurationsSet } from "./engineering/configurationsSet";
+import { GEVFC_ConfigurationsSets } from "./GEVFC/GEVFC_Configurations";
 import { UserPromptTypes, FormatTypes, TextFormat } from "./ui";
 
 
@@ -135,28 +135,28 @@ class QuizApp
 			new Quiz(
 				"GEVFC_BASE_CONFIGURATIONS",
 				"GEVFC Basic Configurations (Starting Points)",
-				GEVFC_ConfigurationsGroups.getById("GEVFC_BASE_CONFIGURATIONS"),
+				GEVFC_ConfigurationsSets.getById("GEVFC_BASE_CONFIGURATIONS"),
 				false,
 				{ flowQuestion: "Flow rate (gallons per minute)", pressureQuestion: "Discharge pressure (p.s.i.)" } ),
 
 			new Quiz(
 				"NOZZLES_ALONE",
 				"Nozzle Flow Rates",
-				GEVFC_ConfigurationsGroups.getById("NOZZLES_ALONE"),
+				GEVFC_ConfigurationsSets.getById("NOZZLES_ALONE"),
 				false,
 				{ flowQuestion: "Flow rate (gallons per minute)" } ),
 
 			new Quiz(
 				"BASE_FRICTION_LOSS_ITEMS_COMMON",
 				"Base Friction Losses (Common)",
-				GEVFC_ConfigurationsGroups.getById("BASE_FRICTION_LOSS_ITEMS_COMMON"),
+				GEVFC_ConfigurationsSets.getById("BASE_FRICTION_LOSS_ITEMS_COMMON"),
 				false,
 				{ pressureQuestion: "Friction loss (p.s.i.)" } ),
 
 			new Quiz(
 				"GEVFC_REALISTIC_SCENARIOS",
 				"GEVFC Basic Configurations (Realistic Scenarios)",
-				this.#buildRealisticConfigurationsGroup(GEVFC_ConfigurationsGroups.getById("GEVFC_BASE_CONFIGURATIONS")),
+				this.#buildRealisticConfigurationsSet(GEVFC_ConfigurationsSets.getById("GEVFC_BASE_CONFIGURATIONS")),
 				true,
 				{ flowQuestion: "Flow rate (gallons per minute)", pressureQuestion: "Discharge pressure (p.s.i.)" })
 			];
@@ -253,12 +253,12 @@ class QuizApp
 	}
 
 
-	#buildRealisticConfigurationsGroup(baseConfigurationsGroup)
+	#buildRealisticConfigurationsSet(baseConfigurationsSet)
 	{
 		// Build a new configurations group that is a copy of the base configurations group,
 		// but with elevations and hose lengths changed to realistic but random numbers.
 		let realisticConfigurations = [];
-		for (const baseConfiguration of baseConfigurationsGroup.configurations)
+		for (const baseConfiguration of baseConfigurationsSet.configurations)
 		{
 			// Build a components list, copying all the components from the base list,
 			// but modifying any elevation, 3" hose, or 5" hose components.
@@ -267,35 +267,35 @@ class QuizApp
 			{
 				let changes = {};
 				if (baseComponent.componentType === ComponentTypes.Elevation)
-					changes = { floorCount: Math.floor(Math.random() * (DeliveryConfiguration.MaxFloorAboveGround - DeliveryConfiguration.MinFloorAboveGround + 1)) + DeliveryConfiguration.MinFloorAboveGround };
+					changes = { floorCount: Math.floor(Math.random() * (ComponentGroup.MaxFloorAboveGround - ComponentGroup.MinFloorAboveGround + 1)) + ComponentGroup.MinFloorAboveGround };
 				else if (baseComponent.componentType === ComponentTypes.Hose && baseComponent.diameter === 3)
 				{
-					let maxLengths = (DeliveryConfiguration.Max3Inch - DeliveryConfiguration.Min3Inch) / DeliveryConfiguration.Multiples_3Inch;
+					let maxLengths = (ComponentGroup.Max3Inch - ComponentGroup.Min3Inch) / ComponentGroup.Multiples_3Inch;
 					let numLengths = Math.floor(Math.random() * (maxLengths + 1));
-					changes = { length: numLengths * DeliveryConfiguration.Multiples_3Inch };
+					changes = { length: numLengths * ComponentGroup.Multiples_3Inch };
 				}
 				else if (baseComponent.componentType === ComponentTypes.Hose && baseComponent.diameter === 5)
 				{
-					let maxLengths = (DeliveryConfiguration.Max5InchToStandpipe - DeliveryConfiguration.Min5InchToStandpipe) / DeliveryConfiguration.Multiples_5Inch;
+					let maxLengths = (ComponentGroup.Max5InchToStandpipe - ComponentGroup.Min5InchToStandpipe) / ComponentGroup.Multiples_5Inch;
 					let numLengths = Math.floor(Math.random() * (maxLengths + 1));
-					changes = { length: numLengths * DeliveryConfiguration.Multiples_5Inch };
+					changes = { length: numLengths * ComponentGroup.Multiples_5Inch };
 				}
 				components.push(baseComponent.duplicate(changes));
 			}
 
 			// Create a new hose configuration with all these components.
 			realisticConfigurations.push(
-				new DeliveryConfiguration(
+				new ComponentGroup(
 					baseConfiguration.descriptionFunction,
 					components,
 					baseConfiguration._flowRate));
 		}
 
-		return new ConfigurationsGroup(
-			`${baseConfigurationsGroup.id}_REALISTIC_${Math.random()}`,
-			`${baseConfigurationsGroup.description} (with random, realistic modifications)`,
+		return new ConfigurationsSet(
+			`${baseConfigurationsSet.id}_REALISTIC_${Math.random()}`,
+			`${baseConfigurationsSet.description} (with random, realistic modifications)`,
 			realisticConfigurations);
-	} // end #buildRealisticConfigurationsGroup()
+	} // end #buildRealisticConfigurationsSet()
 
 
 	async #askQuestion(question, showExpectedAnswer, moveOnEvenIfIncorrect)
@@ -370,7 +370,7 @@ class QuizApp
 		// If this was a dynamic quiz-- one with realistic scenarios-- then generate a new set of realistic scenarios
 		// before this quiz repeats next.
 		if (this.currentQuiz.isDynamic)
-			this.currentQuiz.configurationSet = this.#buildRealisticConfigurationsGroup(this.currentQuiz.configurationSet);
+			this.currentQuiz.configurationSet = this.#buildRealisticConfigurationsSet(this.currentQuiz.configurationSet);
 	}
 
 } // end class QuizApp
