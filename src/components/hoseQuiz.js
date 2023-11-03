@@ -93,7 +93,7 @@ class Quiz
 			if (this.#flowQuestion)
 				questions.push(new Question(this.#flowQuestion, currentConfiguration.flowRate));
 			if (this.#pressureQuestion)
-				questions.push(new Question(this.#pressureQuestion, currentConfiguration.totalPressure));
+				questions.push(new Question(this.#pressureQuestion, currentConfiguration.totalNeededPressure));
 
 			let problemDefinition =
 			{
@@ -137,7 +137,7 @@ class QuizApp
 				"GEVFC Basic Configurations (Starting Points)",
 				GEVFC_ConfigurationsSets.getById("GEVFC_BASE_CONFIGURATIONS"),
 				false,
-				{ flowQuestion: "Flow rate (gallons per minute)", pressureQuestion: "Discharge pressure (p.s.i.)" } ),
+				{ flowQuestion: "Flow rate (gallons per minute)", pressureQuestion: "Discharge pressure (p.s.i.)" } )/*,
 
 			new Quiz(
 				"NOZZLES_ALONE",
@@ -158,7 +158,7 @@ class QuizApp
 				"GEVFC Basic Configurations (Realistic Scenarios)",
 				this.#buildRealisticConfigurationsSet(GEVFC_ConfigurationsSets.getById("GEVFC_BASE_CONFIGURATIONS")),
 				true,
-				{ flowQuestion: "Flow rate (gallons per minute)", pressureQuestion: "Discharge pressure (p.s.i.)" })
+				{ flowQuestion: "Flow rate (gallons per minute)", pressureQuestion: "Discharge pressure (p.s.i.)" }) */
 			];
 
 		this.currentQuiz = this.quizzes[0];
@@ -267,16 +267,16 @@ class QuizApp
 			{
 				let changes = {};
 				if (baseComponent.componentType === ComponentTypes.Elevation)
-					changes = { floorCount: Math.floor(Math.random() * (ComponentGroup.MaxFloorAboveGround - ComponentGroup.MinFloorAboveGround + 1)) + ComponentGroup.MinFloorAboveGround };
+					changes = { floorCount: Math.floor(Math.random() * (ComponentGroup.MaxAllowedFloorAboveGround - ComponentGroup.MinAllowedFloorAboveGround + 1)) + ComponentGroup.MinAllowedFloorAboveGround };
 				else if (baseComponent.componentType === ComponentTypes.Hose && baseComponent.diameter === 3)
 				{
-					let maxLengths = (ComponentGroup.Max3Inch - ComponentGroup.Min3Inch) / ComponentGroup.Multiples_3Inch;
+					let maxLengths = (ComponentGroup.MaxAllowed3Inch - ComponentGroup.MinAllowed3Inch) / ComponentGroup.Multiples_3Inch;
 					let numLengths = Math.floor(Math.random() * (maxLengths + 1));
 					changes = { length: numLengths * ComponentGroup.Multiples_3Inch };
 				}
 				else if (baseComponent.componentType === ComponentTypes.Hose && baseComponent.diameter === 5)
 				{
-					let maxLengths = (ComponentGroup.Max5InchToStandpipe - ComponentGroup.Min5InchToStandpipe) / ComponentGroup.Multiples_5Inch;
+					let maxLengths = (ComponentGroup.MaxAllowed5InchToStandpipe - ComponentGroup.MinAllowed5InchToStandpipe) / ComponentGroup.Multiples_5Inch;
 					let numLengths = Math.floor(Math.random() * (maxLengths + 1));
 					changes = { length: numLengths * ComponentGroup.Multiples_5Inch };
 				}
@@ -288,7 +288,7 @@ class QuizApp
 				new ComponentGroup(
 					baseConfiguration.descriptionFunction,
 					components,
-					baseConfiguration._flowRate));
+					baseConfiguration.forcedFlowRate));
 		}
 
 		return new ConfigurationsSet(

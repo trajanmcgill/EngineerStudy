@@ -26,8 +26,7 @@ const ComponentTypes = (function()
 		Nozzle: "Nozzle",
 		Hose: "Hose",
 		IntermediateAppliance: "IntermediateAppliance",
-		Elevation: "Elevation",
-		ComponentGroup: "ComponentGroup"
+		Elevation: "Elevation"
 	});
 })(); // end ComponentTypes enum definition
 
@@ -156,12 +155,13 @@ const Nozzle = (function()
 
 		duplicate(changes = {})
 		{
+			let isChanging = changes.match && changes.match(this);
 			return new Nozzle(
-			{
-				nozzleType: changes.nozzleType ?? this.#nozzleType,
-				diameter: changes.diameter ?? this.#diameter,
-				identifier: changes.identifier ?? this.#identifier
-			});
+				{
+					nozzleType: isChanging ? (changes.nozzleType ?? this.#nozzleType) : this.#nozzleType,
+					diameter: isChanging ? (changes.diameter ?? this.#diameter) : this.#diameter,
+					identifier: isChanging ? (changes.identifier ?? this.#identifier) : this.#identifier
+				});
 		} // end duplicate()
 
 	} // end class Nozzle
@@ -295,7 +295,10 @@ const Hose = (function()
 
 		duplicate(changes = {})
 		{
-			return new Hose(changes.diameter ?? this.#diameter, changes.length ?? this.length);
+			let isChanging = changes.match && changes.match(this);
+			return new Hose(
+				isChanging ? (changes.diameter ?? this.#diameter) : this.#diameter,
+				isChanging ? (changes.length ?? this.length) : this.length);
 		} // end duplicate()
 
 	} // end class Hose
@@ -356,7 +359,9 @@ const IntermediateAppliance = (function()
 
 		duplicate(changes = {})
 		{
-			return new IntermediateAppliance(changes.type ?? this.#intermediateApplianceType);
+			let isChanging = changes.match && changes.match(this);
+			return new IntermediateAppliance(
+				isChanging ? (changes.type ?? this.#intermediateApplianceType) : this.#intermediateApplianceType);
 		} // end duplicate()
 
 	} // end class IntermediateAppliance
@@ -381,14 +386,28 @@ const Elevation = (function()
 		}
 
 		get componentType() { return this.#componentType; }
-		get description() { return `elevation of ${Math.abs(this.floorCount)} floors ${this.floorCount >=0 ? "above" : "below"} ground level`; }
+		get description() { return Elevation.getElevationText(this.floorCount, false); }
+		get descriptionVerbose() { return `elevation of ${Math.abs(this.floorCount)} floors ${this.floorCount >=0 ? "above" : "below"} ground level`; }
 		get pressureContribution() { return this.floorCount * PSI_Per_Floor; }
 
 		duplicate(changes = {})
 		{
-			return new Elevation(changes.floorCount ?? this.floorCount);
+			let isChanging = changes.match && changes.match(this);
+			return new Elevation(isChanging ? (changes.floorCount ?? this.floorCount) : this.floorCount);
 		} // end duplicate()
 
+		static getElevationText(floorCount, verbose = false)
+		{
+			if (verbose)
+				return `elevation of ${Math.abs(floorCount)} floors ${floorCount >=0 ? "above" : "below"} ground level`;
+			if (floorCount == -1)
+				return "basement";
+			if (floorCount == 0)
+				return "ground floor";
+			if (floorCount > 0)
+				return `floor ${floorCount + 1}`;
+			throw new Error(`Invalid floor count: ${floorCount}`);
+		} // end getElevationText()
 	} // end class Elevation
 
 
@@ -396,113 +415,222 @@ const Elevation = (function()
 })(); // end Elevation class definition and generation code
 
 
-class ComponentGroup
+class ComponentChainLink
 {
-	descriptionFunction;
-	#components;
-	_flowRate = null;
+	#component;
+	#chainStart;
+	#next = [];
+	#forcedFlowRate;
+	#rememberedCalculatedFlowRate = null;
 
-
-	constructor(description, components, flowRate = null)
+	constructor({ component: component, forcedFlowRate: forcedFlowRate = null, chainStart: chainStart = null })
 	{
-		if (typeof description === "function")
-			this.descriptionFunction = description;
-		else
-			this.descriptionFunction = function() { return description; };
-		this.#components = components;
-		this._flowRate = flowRate;
-	} // end ComponentGroup constructor
+		this.#component = component;
+		this.#forcedFlowRate = forcedFlowRate;
+		this.#chainStart = chainStart ?? this;
+	}
 
+	get component() { return this.#component; }
 
-	static get MinFloorAboveGround() { return -1; }
-	static get MaxFloorAboveGround() { return 5; }
+	get chainStart() { return this.#chainStart; }
 
-	static get Min3Inch() { return 0; }
-	static get Max3Inch() { return 600; }
-	static get Multiples_3Inch() { return 50; }
-
-	static get Min5InchToStandpipe() { return 50; }
-	static get Max5InchToStandpipe() { return 1000; }
-	static get Multiples_5Inch() { return 50; }
-
-
-	get description()
-	{ return this.descriptionFunction(); }
-
-
-	get components()
-	{ return this.#components; }
-
+	get next() { return this.#next; }
+	set next(link) { this.#next = Array.isArray(link) ? link : [link]; }
 
 	get flowRate()
 	{
-		// If this.#flowRate is null, it needs to be calculated.
-		// If it is not null, either flow rate was set as a fixed value for this hose configuration,
-		// or it has previously been calculated and saved for subsequent requests, and we just return the known value.
-
-		if (this._flowRate === null)
+		if (this.#rememberedCalculatedFlowRate === null)
 		{
-			// Flow rate is determined by the nozzle. Find the nozzle component to get its flow rate.
-			// Only calculate flow rate once, and save it for subsequent calls.
-			let nozzle = this.#components.find((component) => component.componentType === ComponentTypes.Nozzle);
-			if (nozzle === undefined)
-				throw new Error("Invalid configuration: No nozzle; unable to determine flow rate.");
-			this._flowRate = nozzle.flowRate;
-		}
-
-		return this._flowRate;
-	} // end flowRate property
-
-
-	get totalPressure()
-	{
-		let totalPressure = 0;
-		for (const currentComponent of this.#components)
-		{
-			let pressureContributionType = typeof currentComponent.pressureContribution;
-			if (pressureContributionType === "number")
-				totalPressure += currentComponent.pressureContribution;
-			else if (pressureContributionType === "function")
-				totalPressure += currentComponent.pressureContribution(this.flowRate);
+			if (this.#forcedFlowRate !== null)
+				this.#rememberedCalculatedFlowRate = this.#forcedFlowRate;
+			else if (this.#component.componentType === ComponentTypes.Nozzle)
+				this.#rememberedCalculatedFlowRate = this.#component.flowRate;
 			else
-				throw new Error(`Unable to determine pressure contribution of component ${currentComponent.description}`);
+			{
+				if (this.#next.length < 1)
+					throw new Error("Invalid configuration: No nozzle; unable to determine flow rate.");
+
+				this.#rememberedCalculatedFlowRate = 0;
+				for (let link of this.#next)
+					this.#rememberedCalculatedFlowRate += link.flowRate;
+			}
 		}
+
+		return this.#rememberedCalculatedFlowRate;
+	}
+
+	get pressureDelta()
+	{
+		let pressureContributionType = typeof this.#component.pressureContribution;
+		if (pressureContributionType === "number")
+			return this.#component.pressureContribution;
+		else if (pressureContributionType === "function")
+			return this.#component.pressureContribution(this.flowRate);
+		else
+			throw new Error(`Unable to determine pressure contribution of component ${this.#component.description}`);
+	}
+
+	get totalNeededPressure()
+	{
+		let totalPressure = this.pressureDelta;
+		
+		let forwardPressure = 0;
+		for (let link of this.#next)
+		{
+			// In reality, if the line splits, we wouldn't want downstream components that require different pressures,
+			// because you can only pump one pressure. For calculation purposes, we'll take the greatest downstream pressure.
+			let linkPressure = link.totalNeededPressure;
+			if (linkPressure > forwardPressure)
+				forwardPressure = linkPressure;
+		}
+		totalPressure += forwardPressure;
 
 		return totalPressure;
-	} // end totalPressure property
+	}
 
-
-	get elevationComponent()
+	get downstreamElevation()
 	{
-		return this.components.find((component) => component.componentType === ComponentTypes.Elevation);
-	} // end elevationComponent property
+		let elevations = this.allDownstreamElevations;
+		let elevationDownstream;
+		if (elevations.length < 1)
+			elevationDownstream = 0;
+		else
+		{
+			elevationDownstream = elevations[0];
+			for (let i = 1; i < elevations.length; i++)
+			{
+				if (elevations[i] !== elevationDownstream)
+					throw new Error("Invalid configuration - multiple elevations specified and they do not match.");
+			}
+		}
+		return elevationDownstream;
+	}
+
+	get allDownstreamElevations()
+	{
+		let allElevations = (this.#component.componentType === ComponentTypes.Elevation) ? [this.#component.floorCount] : [];
+		for (let link of this.#next)
+			allElevations.push(link.downstreamElevation);
+		return allElevations;
+	}
+/*
+	append(thing)
+	{
+		let items = Array.isArray(thing) ? thing : [thing];
+
+		let newNext = [];
+		for (let currentItem of items)
+		{
+			if (currentItem instanceof ComponentChainLink)
+				newNext.push(currentItem);
+			else
+				newNext.push(new ComponentChainLink({ component: thing.component, forcedFlowRate: this.#forcedFlowRate, chainStart: this.#chainStart }))
+		}
+		this.next = newNext;
+		return this.#next;
+	}
+*/
+	findTailHose(diameter)
+	{
+		let foundHose = null;
+		if (this.#component.componentType === ComponentTypes.Hose && this.#component.diameter === diameter)
+			foundHose = this.#component;
+		else if (this.#next.length === 1)
+			foundHose = this.#next.findTailHose(diameter);
+
+		return foundHose;
+	}
+
+	duplicate({ changes: changes, inTail: inTail = true, startingLink: startingLink = null })
+	{
+		let
+		{
+			forcedFlowRate,
+			nozzleChanges,
+			tailHoseChanges,
+			tailIntermediateApplianceChanges,
+			elevationChanges
+		} = changes;
+
+		let duplicatedComponent;
+		if (this.#component.componentType === ComponentTypes.Nozzle)
+			duplicatedComponent = this.#component.duplicate(nozzleChanges)
+		else if (this.#component.componentType === ComponentTypes.Hose)
+			duplicatedComponent = this.#component.duplicate(inTail ? tailHoseChanges : {});
+		else if (this.#component.componentType === ComponentTypes.IntermediateAppliance)
+			duplicatedComponent = this.#component.duplicate(inTail ? tailIntermediateApplianceChanges : {});
+		else if (this.#component.componentType === ComponentTypes.Elevation)
+			duplicatedComponent = this.#component.duplicate(elevationChanges);
+
+		let duplicatedChainLink = new ComponentChainLink(
+			{
+				component: duplicatedComponent,
+				forcedFlowRate: typeof forcedFlowRate === "undefined" ? forcedFlowRate : this.#forcedFlowRate,
+				startingLink: startingLink
+			});
+		
+		let newNext = [];
+		let nextInTail = inTail ? (this.#next.length < 2) : false;
+		for (nextLink in this.#next)
+			newNext.push(nextLink.duplicate(changes, nextInTail));
+
+		duplicatedChainLink.next = newNext;
+
+		return duplicatedChainLink;
+	}
+} // end class ComponentChainLink
+
+
+class ComponentGroup
+{
+	#descriptionFunction;
+	#componentChainStart = null;
+	#forcedFlowRate; // CHANGE CODE HERE (not used?)
+
+
+	constructor(description, componentChainStart, forcedFlowRate = null)
+	{
+		this.#descriptionFunction = (typeof description === "function") ? description : function() { return description; };
+		this.#componentChainStart = componentChainStart;
+		this.#forcedFlowRate = forcedFlowRate;
+	} // end ComponentGroup constructor
+
+
+	static get MinAllowedFloorAboveGround() { return -1; }
+	static get MaxAllowedFloorAboveGround() { return 5; }
+
+	static get MinAllowed3Inch() { return 0; }
+	static get MaxAllowed3Inch() { return 600; }
+	static get Multiples_3Inch() { return 50; }
+
+	static get MinAllowed5InchToStandpipe() { return 50; }
+	static get MaxAllowed5InchToStandpipe() { return 1000; }
+	static get Multiples_5Inch() { return 50; }
+
+	get description() { return this.#descriptionFunction(); }
+	get flowRate() { return this.#componentChainStart.flowRate; }
+	get totalNeededPressure() { return this.#componentChainStart.totalNeededPressure; }
+	get elevation() { return this.#componentChainStart.downstreamElevation; }
+	get elevationText() { return Elevation.getElevationText(this.elevation); }
 
 	
-	get elevationText()
+	getTailHoseText(diameter)
 	{
-		let elevation = this.elevationComponent;
-		if (elevation.floorCount == -1)
-			return "basement";
-		if (elevation.floorCount == 0)
-			return "ground floor";
-		if (elevation.floorCount > 0)
-			return `floor ${elevation.floorCount + 1}`;
-		throw new Error(`Invalid floor count: ${elevation.floorCount}`);
-	} // end elevationText property
-
-
-	hoseText(diameter)
-	{
-		let matchingHose = this.components.find(
-			(component) =>
-				component.componentType === ComponentTypes.Hose
-				&& component.diameter === diameter
-			);
+		let matchingHose = this.#componentChainStart.findTailHose(diameter);
+		if (matchingHose === null)
+			throw new Error(`Unable to find tail hose with diameter ${diameter}.`);
 		
 		return matchingHose.description;
-	} // end hostText()
+	} // end getTailHoseText()
+
+
+	duplicate(groupChanges, componentChanges)
+	{
+		let newChainStart = this.#componentChainStart.duplicate(componentChanges);
+		return new ComponentGroup(groupChanges.description ?? this.description, newChainStart);
+	}
 
 } // end class ComponentGroup
 
 
-export { ComponentTypes, Nozzle, Hose, IntermediateAppliance, Elevation, ComponentGroup };
+export { ComponentTypes, Nozzle, Hose, IntermediateAppliance, Elevation, ComponentChainLink, ComponentGroup };

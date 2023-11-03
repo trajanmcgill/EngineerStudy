@@ -1,6 +1,5 @@
 import { ConfigurationsSet } from "../engineering/configurationsSet";
-import { Nozzle, Hose, IntermediateAppliance, Elevation, ComponentGroup } from "../engineering/components";
-
+import { ComponentTypes, Nozzle, Hose, IntermediateAppliance, Elevation, ComponentChainLink, ComponentGroup } from "../engineering/components";
 
 const GEVFC_ConfigurationsSets =
 [
@@ -11,15 +10,13 @@ const GEVFC_ConfigurationsSets =
 			[
 				new ComponentGroup(
 					function() { return `1 3/4\" crosslay to ${this.elevationText}`; },
-					[
-						new Nozzle(
-							{
-								nozzleType: Nozzle.Types.HandFogLowPressure,
-								diameter: 1 + 1/2
-							}),
-						new Hose(1.75, 200),
-						new Elevation(0)
-					]),
+					(function()
+					{
+						let chainStart = new ComponentChainLink({ component: new Hose(1.75, 200) });
+						let nextItem = chainStart.next = new ComponentChainLink({ component: new Elevation(0) });
+						nextItem = nextItem.next = new ComponentChainLink({ component: new Nozzle({ nozzleType: Nozzle.Types.HandFogLowPressure, diameter: 1 + 1/2 }) });
+						return chainStart;
+					})())/*,
 				
 				new ComponentGroup(
 					function() { return `2 1/2\" crosslay to ${this.elevationText}`; },
@@ -34,7 +31,7 @@ const GEVFC_ConfigurationsSets =
 					]),
 
 				new ComponentGroup(
-					function() { return `1 3/4\" skid load with ${this.hoseText(3)}, to ${this.elevationText}`; },
+					function() { return `1 3/4\" skid load with ${this.getTailHoseText(3)}, to ${this.elevationText}`; },
 					[
 						new Nozzle(
 							{
@@ -48,7 +45,7 @@ const GEVFC_ConfigurationsSets =
 					]),
 
 				new ComponentGroup(
-					function() { return `1 3/4\" skid load with fog tip removed and ${this.hoseText(3)}, to ${this.elevationText}`; },
+					function() { return `1 3/4\" skid load with fog tip removed and ${this.getTailHoseText(3)}, to ${this.elevationText}`; },
 					[
 						new Nozzle(
 							{
@@ -62,7 +59,7 @@ const GEVFC_ConfigurationsSets =
 					]),
 
 				new ComponentGroup(
-					function() { return `2 1/2\" skid load with default tip and ${this.hoseText(3)}, to ${this.elevationText}`; },
+					function() { return `2 1/2\" skid load with default tip and ${this.getTailHoseText(3)}, to ${this.elevationText}`; },
 					[
 						new Nozzle(
 							{
@@ -75,7 +72,7 @@ const GEVFC_ConfigurationsSets =
 					]),
 
 				new ComponentGroup(
-					function() { return `2 1/2\" skid load with 1 1/4\" tip and ${this.hoseText(3)}, to ${this.elevationText}`; },
+					function() { return `2 1/2\" skid load with 1 1/4\" tip and ${this.getTailHoseText(3)}, to ${this.elevationText}`; },
 					[
 						new Nozzle(
 							{
@@ -88,7 +85,7 @@ const GEVFC_ConfigurationsSets =
 					]),
 
 				new ComponentGroup(
-					function() { return `Blitzfire with 1 1/4\" tip and ${this.hoseText(3)}`; },
+					function() { return `Blitzfire with 1 1/4\" tip and ${this.getTailHoseText(3)}`; },
 					[
 						new Nozzle(
 							{
@@ -99,7 +96,7 @@ const GEVFC_ConfigurationsSets =
 					]),
 
 				new ComponentGroup(
-					function() { return `Blitzfire with 1 1/2\" tip and ${this.hoseText(3)}`; },
+					function() { return `Blitzfire with 1 1/2\" tip and ${this.getTailHoseText(3)}`; },
 					[
 						new Nozzle(
 							{
@@ -133,7 +130,7 @@ const GEVFC_ConfigurationsSets =
 					]),
 	
 				new ComponentGroup(
-					function() { return `High-rise pack on standpipe, to ${this.elevationText}, supplied by ${this.hoseText(5)}`; },
+					function() { return `High-rise pack on standpipe, to ${this.elevationText}, supplied by ${this.getTailHoseText(5)}`; },
 					[
 						new Nozzle(
 							{
@@ -196,9 +193,9 @@ const GEVFC_ConfigurationsSets =
 					[
 						new Nozzle({ nozzleType: Nozzle.Types.MasterFog }),
 						new IntermediateAppliance(IntermediateAppliance.Types.MasterStreamDevice)
-					])
+					])*/
 			])),
-
+/*
 	new ConfigurationsSet(
 		"NOZZLES_ALONE",
 		"Nozzles Alone",
@@ -288,7 +285,7 @@ const GEVFC_ConfigurationsSets =
 				new ComponentGroup("Siamese connection", [new IntermediateAppliance(IntermediateAppliance.Types.Siamese)]),
 				new ComponentGroup("Master stream device", [new IntermediateAppliance(IntermediateAppliance.Types.MasterStreamDevice)]),
 				new ComponentGroup("Standpipe system", [new IntermediateAppliance(IntermediateAppliance.Types.Standpipe)])
-			]))
+			])) */
 ];
 GEVFC_ConfigurationsSets.getById = function(id) { return this.find((configurationSet) => configurationSet.id === id); };
 Object.freeze(GEVFC_ConfigurationsSets);
