@@ -152,7 +152,7 @@ const GEVFC_ConfigurationsSets =
 						new IntermediateAppliance(IntermediateAppliance.Types.MasterStreamDevice),
 						new Nozzle({ nozzleType: Nozzle.Types.MasterFog })						
 					]))
-			]))/*,
+			])),
 
 	new ConfigurationsSet(
 		"NOZZLES_ALONE",
@@ -161,66 +161,85 @@ const GEVFC_ConfigurationsSets =
 			[
 				new ComponentGroup(
 					"1 3/4\" hand line fog nozzle (trash line, default setting)",
-					[new Nozzle({ nozzleType: Nozzle.Types.HandFogConventional_TrashLine, diameter: 1 + 1/2 })]),
+					ComponentChainLink.createStraightLineChain(
+						[new Nozzle({ nozzleType: Nozzle.Types.HandFogConventional_TrashLine, diameter: 1 + 1/2 })])),
 				new ComponentGroup(
 					"1 3/4\" hand line fog nozzle (other than trash line)",
-					[new Nozzle({ nozzleType: Nozzle.Types.HandFogLowPressure, diameter: 1 + 1/2 })]),
+					ComponentChainLink.createStraightLineChain(
+						[new Nozzle({ nozzleType: Nozzle.Types.HandFogLowPressure, diameter: 1 + 1/2 })])),
 				new ComponentGroup(
 					"2 1/2\" hand line fog nozzle",
-					[new Nozzle({ nozzleType: Nozzle.Types.HandFogLowPressure, diameter: 2 + 1/2 })]),
+					ComponentChainLink.createStraightLineChain(
+						[new Nozzle({ nozzleType: Nozzle.Types.HandFogLowPressure, diameter: 2 + 1/2 })])),
 				new ComponentGroup(
 					"Master stream fog nozzle",
-					[new Nozzle({ nozzleType: Nozzle.Types.MasterFog })]),
+					ComponentChainLink.createStraightLineChain(
+						[new Nozzle({ nozzleType: Nozzle.Types.MasterFog })])),
 
 				new ComponentGroup(
 					"Smooth bore nozzle, 15/16\" tip, at hand line pressure",
-					[new Nozzle({ nozzleType: Nozzle.Types.HandSmooth, diameter: 15/16 })]),															
+					ComponentChainLink.createStraightLineChain(
+						[new Nozzle({ nozzleType: Nozzle.Types.HandSmooth, diameter: 15/16 })])),															
 				new ComponentGroup(
 					"Smooth bore nozzle, 1\" tip, at hand line pressure",
-					[new Nozzle({ nozzleType: Nozzle.Types.HandSmooth, diameter: 1 })]),
+					ComponentChainLink.createStraightLineChain(
+						[new Nozzle({ nozzleType: Nozzle.Types.HandSmooth, diameter: 1 })])),
 				new ComponentGroup(
 					"Smooth bore nozzle, 1 1/8\" tip, at hand line pressure",
-					[new Nozzle({ nozzleType: Nozzle.Types.HandSmooth, diameter: 1 + 1/8 })]),
+					ComponentChainLink.createStraightLineChain(
+						[new Nozzle({ nozzleType: Nozzle.Types.HandSmooth, diameter: 1 + 1/8 })])),
 				new ComponentGroup(
 					"Smooth bore nozzle, 1 1/4\" tip, at hand line pressure",
-					[new Nozzle({ nozzleType: Nozzle.Types.HandSmooth, diameter: 1 + 1/4 })]),
+					ComponentChainLink.createStraightLineChain(
+						[new Nozzle({ nozzleType: Nozzle.Types.HandSmooth, diameter: 1 + 1/4 })])),
 				new ComponentGroup(
 					"Smooth bore nozzle, 1 1/2\" tip, at 50 p.s.i.",
-					[new Nozzle({ nozzleType: Nozzle.Types.HandSmooth, diameter: 1 + 1/2 })]),
+					ComponentChainLink.createStraightLineChain(
+						[new Nozzle({ nozzleType: Nozzle.Types.HandSmooth, diameter: 1 + 1/2 })])),
 
 				new ComponentGroup(
 					"Smooth bore nozzle, 1 1/4\" tip, at master stream pressure",
-					[new Nozzle({ nozzleType: Nozzle.Types.MasterSmooth, diameter: 1 + 1/4 })]),
+					ComponentChainLink.createStraightLineChain(
+						[new Nozzle({ nozzleType: Nozzle.Types.MasterSmooth, diameter: 1 + 1/4 })])),
 				new ComponentGroup(
 					"Smooth bore nozzle, 1 3/8\" tip, at master stream pressure",
-					[new Nozzle({ nozzleType: Nozzle.Types.MasterSmooth, diameter: 1 + 3/8 })]),
+					ComponentChainLink.createStraightLineChain(
+						[new Nozzle({ nozzleType: Nozzle.Types.MasterSmooth, diameter: 1 + 3/8 })])),
 				new ComponentGroup(
 					"Smooth bore nozzle, 1 1/2\" tip, at master stream pressure",
-					[new Nozzle({ nozzleType: Nozzle.Types.MasterSmooth, diameter: 1 + 1/2 })]),
+					ComponentChainLink.createStraightLineChain(
+						[new Nozzle({ nozzleType: Nozzle.Types.MasterSmooth, diameter: 1 + 1/2 })])),
 				new ComponentGroup(
 					"Smooth bore nozzle, 1 3/4\" tip, at master stream pressure",
-					[new Nozzle({ nozzleType: Nozzle.Types.MasterSmooth, diameter: 1 + 3/4 })]),
+					ComponentChainLink.createStraightLineChain(
+						[new Nozzle({ nozzleType: Nozzle.Types.MasterSmooth, diameter: 1 + 3/4 })])),
 				new ComponentGroup(
 					"Smooth bore nozzle, 2\" tip, at master stream pressure",
-					[new Nozzle({ nozzleType: Nozzle.Types.MasterSmooth, diameter: 2 })]),
+					ComponentChainLink.createStraightLineChain(
+						[new Nozzle({ nozzleType: Nozzle.Types.MasterSmooth, diameter: 2 })])),
 
 	
 				new ComponentGroup(
 					"Foam eductor",
-					[new Nozzle({ nozzleType: Nozzle.Types.FoamEductor })]),
+					ComponentChainLink.createStraightLineChain(
+						[new Nozzle({ nozzleType: Nozzle.Types.FoamEductor })])),
 				new ComponentGroup(
 					"Cellar nozzle (backup engines)",
-					[new Nozzle({ nozzleType: Nozzle.Types.Cellar, identifier: "E60/63" })]),
+					ComponentChainLink.createStraightLineChain(
+						[new Nozzle({ nozzleType: Nozzle.Types.Cellar, identifier: "E60/63" })])),
 				new ComponentGroup(
 					"Cellar nozzle (E61)",
-					[new Nozzle({ nozzleType: Nozzle.Types.Cellar, identifier: "E61" })]),
+					ComponentChainLink.createStraightLineChain(
+						[new Nozzle({ nozzleType: Nozzle.Types.Cellar, identifier: "E61" })])),
 				new ComponentGroup(
 					"Cellar nozzle (E62)",
-					[new Nozzle({ nozzleType: Nozzle.Types.Cellar, identifier: "E62" })]),
+					ComponentChainLink.createStraightLineChain(
+						[new Nozzle({ nozzleType: Nozzle.Types.Cellar, identifier: "E62" })])),
 				new ComponentGroup(
 					"Piercing nozzle",
-					[new Nozzle({ nozzleType: Nozzle.Types.Piercing })])
-			])),
+					ComponentChainLink.createStraightLineChain(
+						[new Nozzle({ nozzleType: Nozzle.Types.Piercing })]))
+			]))/*,
 	
 	new ConfigurationsSet(
 		"BASE_FRICTION_LOSS_ITEMS_COMMON",

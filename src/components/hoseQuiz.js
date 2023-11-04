@@ -137,14 +137,14 @@ class QuizApp
 				"GEVFC Basic Configurations (Starting Points)",
 				GEVFC_ConfigurationsSets.getById("GEVFC_BASE_CONFIGURATIONS"),
 				false,
-				{ flowQuestion: "Flow rate (gallons per minute)", pressureQuestion: "Discharge pressure (p.s.i.)" } )/*,
+				{ flowQuestion: "Flow rate (gallons per minute)", pressureQuestion: "Discharge pressure (p.s.i.)" } ),
 
 			new Quiz(
 				"NOZZLES_ALONE",
 				"Nozzle Flow Rates",
 				GEVFC_ConfigurationsSets.getById("NOZZLES_ALONE"),
 				false,
-				{ flowQuestion: "Flow rate (gallons per minute)" } ),
+				{ flowQuestion: "Flow rate (gallons per minute)" } )/*,
 
 			new Quiz(
 				"BASE_FRICTION_LOSS_ITEMS_COMMON",
