@@ -293,12 +293,10 @@ const Hose = (function()
 		}
 
 
-		duplicate(changes = {})
+		duplicate(transformationFunction = (hose) => ({ diameter: hose.diameter, length: hose.length }))
 		{
-			let isChanging = changes.match && changes.match(this);
-			return new Hose(
-				isChanging ? (changes.diameter ?? this.#diameter) : this.#diameter,
-				isChanging ? (changes.length ?? this.length) : this.length);
+			let { diameter: newDiameter, length: newLength } = transformationFunction(this);
+			return new Hose(newDiameter, newLength);
 		} // end duplicate()
 
 	} // end class Hose
@@ -390,10 +388,9 @@ const Elevation = (function()
 		get descriptionVerbose() { return `elevation of ${Math.abs(this.floorCount)} floors ${this.floorCount >=0 ? "above" : "below"} ground level`; }
 		get pressureContribution() { return this.floorCount * PSI_Per_Floor; }
 
-		duplicate(changes = {})
+		duplicate(transformationFunction = (elevation) => elevation.floorCount)
 		{
-			let isChanging = changes.match && changes.match(this);
-			return new Elevation(isChanging ? (changes.floorCount ?? this.floorCount) : this.floorCount);
+			return new Elevation(transformationFunction(this));
 		} // end duplicate()
 
 		static getElevationText(floorCount, verbose = false)
@@ -503,7 +500,7 @@ class ComponentChainLink
 	{
 		let allElevations = (this.#component.componentType === ComponentTypes.Elevation) ? [this.#component.floorCount] : [];
 		for (let link of this.#next)
-			allElevations.concat(link.allDownstreamElevations);
+			allElevations = allElevations.concat(link.allDownstreamElevations);
 		return allElevations;
 	}
 
@@ -520,38 +517,33 @@ class ComponentChainLink
 	}
 
 
-	duplicate({ changes: changes, inTail: inTail = true, startingLink: startingLink = null })
+	duplicate(changes, currentlyInTail = true)
 	{
 		let
 		{
 			forcedFlowRate,
 			nozzleChanges,
-			tailHoseChanges,
+			tailHoseTransformation,
 			tailIntermediateApplianceChanges,
-			elevationChanges
+			elevationTransformation
 		} = changes;
 
 		let duplicatedComponent;
 		if (this.#component.componentType === ComponentTypes.Nozzle)
 			duplicatedComponent = this.#component.duplicate(nozzleChanges)
 		else if (this.#component.componentType === ComponentTypes.Hose)
-			duplicatedComponent = this.#component.duplicate(inTail ? tailHoseChanges : {});
+			duplicatedComponent = this.#component.duplicate(currentlyInTail ? tailHoseTransformation : undefined);
 		else if (this.#component.componentType === ComponentTypes.IntermediateAppliance)
-			duplicatedComponent = this.#component.duplicate(inTail ? tailIntermediateApplianceChanges : {});
+			duplicatedComponent = this.#component.duplicate(currentlyInTail ? tailIntermediateApplianceChanges : {});
 		else if (this.#component.componentType === ComponentTypes.Elevation)
-			duplicatedComponent = this.#component.duplicate(elevationChanges);
+			duplicatedComponent = this.#component.duplicate(elevationTransformation);
 
-		let duplicatedChainLink = new ComponentChainLink(
-			{
-				component: duplicatedComponent,
-				forcedFlowRate: typeof forcedFlowRate === "undefined" ? forcedFlowRate : this.#forcedFlowRate,
-				startingLink: startingLink
-			});
+		let duplicatedChainLink = new ComponentChainLink(duplicatedComponent, forcedFlowRate ?? this.#forcedFlowRate);
 		
 		let newNext = [];
-		let nextInTail = inTail ? (this.#next.length < 2) : false;
-		for (nextLink in this.#next)
-			newNext.push(nextLink.duplicate(changes, nextInTail));
+		let nextStillInTail = currentlyInTail && (this.#next.length < 2);
+		for (let nextLink of this.#next)
+			newNext.push(nextLink.duplicate(changes, nextStillInTail));
 
 		duplicatedChainLink.next = newNext;
 
@@ -578,14 +570,12 @@ class ComponentGroup
 {
 	#descriptionFunction;
 	#componentChainStart = null;
-	#forcedFlowRate; // CHANGE CODE HERE (not used?)
 
 
-	constructor(description, componentChainStart, forcedFlowRate = null)
+	constructor(description, componentChainStart)
 	{
 		this.#descriptionFunction = (typeof description === "function") ? description : function() { return description; };
 		this.#componentChainStart = componentChainStart;
-		this.#forcedFlowRate = forcedFlowRate;
 	} // end ComponentGroup constructor
 
 
@@ -617,10 +607,10 @@ class ComponentGroup
 	} // end getTailHoseText()
 
 
-	duplicate(groupChanges, componentChanges)
+	duplicate(componentChanges)
 	{
 		let newChainStart = this.#componentChainStart.duplicate(componentChanges);
-		return new ComponentGroup(groupChanges.description ?? this.description, newChainStart);
+		return new ComponentGroup(this.#descriptionFunction, newChainStart);
 	}
 
 } // end class ComponentGroup

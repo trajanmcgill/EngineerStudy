@@ -1,19 +1,23 @@
+import { ComponentGroup } from "./components";
+
+
 class ConfigurationsSet
 {
 	#id;
 	#description;
-	#configurations;
+	#deliveryConfigurations;
 
-	constructor(id, description, configurations)
+	constructor(id, description, deliveryConfigurations)
 	{
 		this.#id = id;
 		this.#description = description;
-		this.#configurations = configurations;
+		this.#deliveryConfigurations = deliveryConfigurations;
 	}
 
 	get id() { return this.#id; }
 	get description() { return this.#description; }
-	get configurations() { return this.#configurations; }
+	get deliveryConfigurations() { return this.#deliveryConfigurations; }
+
 } // end class ConfigurationsSet
 
 

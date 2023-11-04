@@ -38,6 +38,27 @@ const GEVFC_ConfigurationsSets =
 					])),
 
 				new ComponentGroup(
+					function() { return `1 3/4\" skid load with ${this.getTailHoseText(3)}, to ${this.elevationText}, with a 2nd hand line (high rise pack) also attached at the wye`; },
+					(function ()
+					{
+						let chainStart = new ComponentChainLink(new Hose(3, 0));
+						let elevation = chainStart.next = new ComponentChainLink(new Elevation(0));
+						let wye = elevation.next = new ComponentChainLink(new IntermediateAppliance(IntermediateAppliance.Types.Wye));
+						let handline1 = ComponentChainLink.createStraightLineChain(
+							[
+								new Hose(1.75, 150),
+								new Nozzle({ nozzleType: Nozzle.Types.HandFogLowPressure, diameter: 1 + 1/2 })
+							]);
+						let handline2 = ComponentChainLink.createStraightLineChain(
+							[
+								new Hose(1.75, 150),
+								new Nozzle({ nozzleType: Nozzle.Types.HandFogLowPressure, diameter: 1 + 1/2 })
+							]);
+						wye.next = [handline1, handline2];
+						return chainStart;
+					})()),
+
+				new ComponentGroup(
 					function() { return `1 3/4\" skid load with fog tip removed and ${this.getTailHoseText(3)}, to ${this.elevationText}`; },
 					ComponentChainLink.createStraightLineChain(
 					[

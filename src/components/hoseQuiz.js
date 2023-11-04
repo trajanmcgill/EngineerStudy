@@ -4,7 +4,7 @@ import { GEVFC_ConfigurationsSets } from "./GEVFC/GEVFC_Configurations";
 import { UserPromptTypes, FormatTypes, TextFormat } from "./ui";
 
 
-const Version = "1.0.1";
+const Version = "1.1.0";
 const TimerRegularity = 250; // update the timer view every 0.25 seconds
 
 
@@ -77,7 +77,7 @@ class Quiz
 		// Create a randomly ordered array of all the hose/appliance configurations in this problem set.
 		// Copy the problem set configurations array, then move from the back of the array to the front,
 		// randomly swapping an element from the remaining part of the arry with each one.
-		let allConfigurations = Array.from(this.configurationSet.configurations);
+		let allConfigurations = Array.from(this.configurationSet.deliveryConfigurations);
 		for (let remaining = allConfigurations.length; remaining > 0; remaining--)
 		{
 			let nextElementIndex = Math.floor(Math.random() * remaining);
@@ -151,14 +151,14 @@ class QuizApp
 				"Base Friction Losses (Common)",
 				GEVFC_ConfigurationsSets.getById("BASE_FRICTION_LOSS_ITEMS_COMMON"),
 				false,
-				{ pressureQuestion: "Friction loss (p.s.i.)" } )/*,
+				{ pressureQuestion: "Friction loss (p.s.i.)" } ),
 
 			new Quiz(
 				"GEVFC_REALISTIC_SCENARIOS",
 				"GEVFC Basic Configurations (Realistic Scenarios)",
 				this.#buildRealisticConfigurationsSet(GEVFC_ConfigurationsSets.getById("GEVFC_BASE_CONFIGURATIONS")),
 				true,
-				{ flowQuestion: "Flow rate (gallons per minute)", pressureQuestion: "Discharge pressure (p.s.i.)" }) */
+				{ flowQuestion: "Flow rate (gallons per minute)", pressureQuestion: "Discharge pressure (p.s.i.)" })
 			];
 
 		this.currentQuiz = this.quizzes[0];
@@ -166,8 +166,7 @@ class QuizApp
 	} // end QuizApp constructor
 
 
-	get currentQuizID()
-	{ return this.currentQuiz === undefined ? null : this.currentQuiz.id; }
+	get currentQuizID() { return this.currentQuiz === undefined ? null : this.currentQuiz.id; }
 
 	set currentQuizID(quizID)
 	{
@@ -257,38 +256,45 @@ class QuizApp
 	{
 		// Build a new configurations group that is a copy of the base configurations group,
 		// but with elevations and hose lengths changed to realistic but random numbers.
+		
 		let realisticConfigurations = [];
-		for (const baseConfiguration of baseConfigurationsSet.configurations)
-		{
-			// Build a components list, copying all the components from the base list,
-			// but modifying any elevation, 3" hose, or 5" hose components.
-			let components = [];
-			for (const baseComponent of baseConfiguration.components)
-			{
-				let changes = {};
-				if (baseComponent.componentType === ComponentTypes.Elevation)
-					changes = { floorCount: Math.floor(Math.random() * (ComponentGroup.MaxAllowedFloorAboveGround - ComponentGroup.MinAllowedFloorAboveGround + 1)) + ComponentGroup.MinAllowedFloorAboveGround };
-				else if (baseComponent.componentType === ComponentTypes.Hose && baseComponent.diameter === 3)
-				{
-					let maxLengths = (ComponentGroup.MaxAllowed3Inch - ComponentGroup.MinAllowed3Inch) / ComponentGroup.Multiples_3Inch;
-					let numLengths = Math.floor(Math.random() * (maxLengths + 1));
-					changes = { length: numLengths * ComponentGroup.Multiples_3Inch };
-				}
-				else if (baseComponent.componentType === ComponentTypes.Hose && baseComponent.diameter === 5)
-				{
-					let maxLengths = (ComponentGroup.MaxAllowed5InchToStandpipe - ComponentGroup.MinAllowed5InchToStandpipe) / ComponentGroup.Multiples_5Inch;
-					let numLengths = Math.floor(Math.random() * (maxLengths + 1));
-					changes = { length: numLengths * ComponentGroup.Multiples_5Inch };
-				}
-				components.push(baseComponent.duplicate(changes));
-			}
 
-			// Create a new hose configuration with all these components.
-			realisticConfigurations.push(
-				new ComponentGroup(
-					baseConfiguration.descriptionFunction,
-					components,
-					baseConfiguration.forcedFlowRate));
+		// For each delivery configuration in this set, create a duplicate with adjustments.
+		for (const baseDeliveryConfiguration of baseConfigurationsSet.deliveryConfigurations)
+		{
+			// Get a duplicate of this configuration, but with elevations and tail hose lengths randomly changed.
+			let adjustedDeliveryConfiguration =
+				baseDeliveryConfiguration.duplicate(
+					{
+						tailHoseTransformation: function(hose)
+						{
+							let newLength = hose.length;
+							if (hose.diameter === 3)
+							{
+								let maxLengths = (ComponentGroup.MaxAllowed3Inch - ComponentGroup.MinAllowed3Inch) / ComponentGroup.Multiples_3Inch;
+								let numLengths = Math.floor(Math.random() * (maxLengths + 1));
+								newLength = numLengths * ComponentGroup.Multiples_3Inch;
+							}
+							else if (hose.diameter === 5)
+							{
+								let maxLengths = (ComponentGroup.MaxAllowed5InchToStandpipe - ComponentGroup.MinAllowed5InchToStandpipe) / ComponentGroup.Multiples_5Inch;
+								let numLengths = Math.floor(Math.random() * (maxLengths + 1));
+								newLength = numLengths * ComponentGroup.Multiples_5Inch;
+							}
+
+							return { diameter: hose.diameter, length: newLength };
+						},
+
+						elevationTransformation: function()
+						{
+							let newFloorCount =
+								Math.floor(Math.random() * (ComponentGroup.MaxAllowedFloorAboveGround - ComponentGroup.MinAllowedFloorAboveGround + 1))
+								+ ComponentGroup.MinAllowedFloorAboveGround;
+							return newFloorCount;
+						}
+					});
+
+			realisticConfigurations.push(adjustedDeliveryConfiguration);
 		}
 
 		return new ConfigurationsSet(
