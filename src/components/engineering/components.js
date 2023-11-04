@@ -418,42 +418,38 @@ const Elevation = (function()
 class ComponentChainLink
 {
 	#component;
-	#chainStart;
 	#next = [];
 	#forcedFlowRate;
 	#rememberedCalculatedFlowRate = null;
 
-	constructor({ component: component, forcedFlowRate: forcedFlowRate = null, chainStart: chainStart = null })
+	constructor(component, forcedFlowRate = null)
 	{
 		this.#component = component;
 		this.#forcedFlowRate = forcedFlowRate;
-		this.#chainStart = chainStart ?? this;
 	}
 
 	get component() { return this.#component; }
-
-	get chainStart() { return this.#chainStart; }
 
 	get next() { return this.#next; }
 	set next(link) { this.#next = Array.isArray(link) ? link : [link]; }
 
 	get flowRate()
 	{
-		if (this.#rememberedCalculatedFlowRate === null)
-		{
-			if (this.#forcedFlowRate !== null)
-				this.#rememberedCalculatedFlowRate = this.#forcedFlowRate;
-			else if (this.#component.componentType === ComponentTypes.Nozzle)
-				this.#rememberedCalculatedFlowRate = this.#component.flowRate;
-			else
-			{
-				if (this.#next.length < 1)
-					throw new Error("Invalid configuration: No nozzle; unable to determine flow rate.");
+		if (this.#rememberedCalculatedFlowRate !== null)
+			return this.#rememberedCalculatedFlowRate;
 
-				this.#rememberedCalculatedFlowRate = 0;
-				for (let link of this.#next)
-					this.#rememberedCalculatedFlowRate += link.flowRate;
-			}
+		if (this.#forcedFlowRate !== null)
+			this.#rememberedCalculatedFlowRate = this.#forcedFlowRate;
+		else if (this.#component.componentType === ComponentTypes.Nozzle)
+			this.#rememberedCalculatedFlowRate = this.#component.flowRate;
+		else
+		{
+			if (this.#next.length < 1)
+				throw new Error("Invalid configuration: No nozzle; unable to determine flow rate.");
+
+			this.#rememberedCalculatedFlowRate = 0;
+			for (let nextLink of this.#next)
+				this.#rememberedCalculatedFlowRate += nextLink.flowRate;
 		}
 
 		return this.#rememberedCalculatedFlowRate;
@@ -491,45 +487,27 @@ class ComponentChainLink
 	get downstreamElevation()
 	{
 		let elevations = this.allDownstreamElevations;
-		let elevationDownstream;
 		if (elevations.length < 1)
-			elevationDownstream = 0;
-		else
+			return 0;
+		
+		let returnValue = elevations[0];
+		for (let i = 1; i < elevations.length; i++)
 		{
-			elevationDownstream = elevations[0];
-			for (let i = 1; i < elevations.length; i++)
-			{
-				if (elevations[i] !== elevationDownstream)
-					throw new Error("Invalid configuration - multiple elevations specified and they do not match.");
-			}
+			if (elevations[i] !== returnValue)
+				throw new Error("Invalid configuration - multiple elevations specified and they do not match.");
 		}
-		return elevationDownstream;
+		return returnValue;
 	}
 
 	get allDownstreamElevations()
 	{
 		let allElevations = (this.#component.componentType === ComponentTypes.Elevation) ? [this.#component.floorCount] : [];
 		for (let link of this.#next)
-			allElevations.push(link.downstreamElevation);
+			allElevations.concat(link.allDownstreamElevations);
 		return allElevations;
 	}
-/*
-	append(thing)
-	{
-		let items = Array.isArray(thing) ? thing : [thing];
 
-		let newNext = [];
-		for (let currentItem of items)
-		{
-			if (currentItem instanceof ComponentChainLink)
-				newNext.push(currentItem);
-			else
-				newNext.push(new ComponentChainLink({ component: thing.component, forcedFlowRate: this.#forcedFlowRate, chainStart: this.#chainStart }))
-		}
-		this.next = newNext;
-		return this.#next;
-	}
-*/
+
 	findTailHose(diameter)
 	{
 		let foundHose = null;
@@ -540,6 +518,7 @@ class ComponentChainLink
 
 		return foundHose;
 	}
+
 
 	duplicate({ changes: changes, inTail: inTail = true, startingLink: startingLink = null })
 	{
@@ -577,6 +556,20 @@ class ComponentChainLink
 		duplicatedChainLink.next = newNext;
 
 		return duplicatedChainLink;
+	}
+
+
+	static createStraightLineChain(componentsArray, forcedFlowRate = null)
+	{
+		if (componentsArray.length < 1)
+			return null;
+
+		let firstLink = new ComponentChainLink(componentsArray[0], forcedFlowRate),
+			currentLink = firstLink;
+		for (let i = 1; i < componentsArray.length; i++)
+			currentLink = currentLink.next = new ComponentChainLink(componentsArray[i], forcedFlowRate);
+
+		return firstLink;
 	}
 } // end class ComponentChainLink
 

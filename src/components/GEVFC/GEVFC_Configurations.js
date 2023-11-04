@@ -10,192 +10,150 @@ const GEVFC_ConfigurationsSets =
 			[
 				new ComponentGroup(
 					function() { return `1 3/4\" crosslay to ${this.elevationText}`; },
-					(function()
-					{
-						let chainStart = new ComponentChainLink({ component: new Hose(1.75, 200) });
-						let nextItem = chainStart.next = new ComponentChainLink({ component: new Elevation(0) });
-						nextItem = nextItem.next = new ComponentChainLink({ component: new Nozzle({ nozzleType: Nozzle.Types.HandFogLowPressure, diameter: 1 + 1/2 }) });
-						return chainStart;
-					})())/*,
-				
+					ComponentChainLink.createStraightLineChain(
+					[
+						new Hose(1.75, 200),
+						new Elevation(0),
+						new Nozzle({ nozzleType: Nozzle.Types.HandFogLowPressure, diameter: 1 + 1/2 })
+					])),
+
 				new ComponentGroup(
 					function() { return `2 1/2\" crosslay to ${this.elevationText}`; },
+					ComponentChainLink.createStraightLineChain(
 					[
-						new Nozzle(
-							{
-								nozzleType: Nozzle.Types.HandSmooth,
-								diameter: 1 + 1/4
-							}),
 						new Hose(2.5, 200),
-						new Elevation(0)
-					]),
+						new Elevation(0),
+						new Nozzle({ nozzleType: Nozzle.Types.HandSmooth, diameter: 1 + 1/4 })
+					])),
 
 				new ComponentGroup(
 					function() { return `1 3/4\" skid load with ${this.getTailHoseText(3)}, to ${this.elevationText}`; },
+					ComponentChainLink.createStraightLineChain(
 					[
-						new Nozzle(
-							{
-								nozzleType: Nozzle.Types.HandFogLowPressure,
-								diameter: 1 + 1/2
-							}),
+						new Hose(3, 0),
+						new IntermediateAppliance(IntermediateAppliance.Types.Wye),
 						new Hose(1.75, 150),
 						new Elevation(0),
-						new IntermediateAppliance(IntermediateAppliance.Types.Wye),
-						new Hose(3, 0)
-					]),
+						new Nozzle({ nozzleType: Nozzle.Types.HandFogLowPressure, diameter: 1 + 1/2 })
+					])),
 
 				new ComponentGroup(
 					function() { return `1 3/4\" skid load with fog tip removed and ${this.getTailHoseText(3)}, to ${this.elevationText}`; },
+					ComponentChainLink.createStraightLineChain(
 					[
-						new Nozzle(
-							{
-								nozzleType: Nozzle.Types.HandSmooth,
-								diameter: 15/16
-							}),
+						new Hose(3, 0),
+						new IntermediateAppliance(IntermediateAppliance.Types.Wye),
 						new Hose(1.75, 150),
 						new Elevation(0),
-						new IntermediateAppliance(IntermediateAppliance.Types.Wye),
-						new Hose(3, 0)
-					]),
+						new Nozzle({ nozzleType: Nozzle.Types.HandSmooth, diameter: 15/16 })
+					])),
 
 				new ComponentGroup(
 					function() { return `2 1/2\" skid load with default tip and ${this.getTailHoseText(3)}, to ${this.elevationText}`; },
+					ComponentChainLink.createStraightLineChain(
 					[
-						new Nozzle(
-							{
-								nozzleType: Nozzle.Types.HandSmooth,
-								diameter: 1 + 1/8
-							}),
+						new Hose(3, 0),
 						new Hose(2.5, 150),
 						new Elevation(0),
-						new Hose(3, 0)
-					]),
+						new Nozzle({ nozzleType: Nozzle.Types.HandSmooth, diameter: 1 + 1/8 })
+					])),
 
 				new ComponentGroup(
 					function() { return `2 1/2\" skid load with 1 1/4\" tip and ${this.getTailHoseText(3)}, to ${this.elevationText}`; },
+					ComponentChainLink.createStraightLineChain(
 					[
-						new Nozzle(
-							{
-								nozzleType: Nozzle.Types.HandSmooth,
-								diameter: 1 + 1/4
-							}),
+						new Hose(3, 0),
 						new Hose(2.5, 150),
 						new Elevation(0),
-						new Hose(3, 0)
-					]),
+						new Nozzle({ nozzleType: Nozzle.Types.HandSmooth, diameter: 1 + 1/4 })
+					])),
 
 				new ComponentGroup(
 					function() { return `Blitzfire with 1 1/4\" tip and ${this.getTailHoseText(3)}`; },
+					ComponentChainLink.createStraightLineChain(
 					[
-						new Nozzle(
-							{
-								nozzleType: Nozzle.Types.MasterSmooth,
-								diameter: 1 + 1/4
-							}),
-						new Hose(3, 0)
-					]),
+						new Hose(3, 0),
+						new Nozzle({ nozzleType: Nozzle.Types.MasterSmooth, diameter: 1 + 1/4 })
+					])),
 
 				new ComponentGroup(
 					function() { return `Blitzfire with 1 1/2\" tip and ${this.getTailHoseText(3)}`; },
+					ComponentChainLink.createStraightLineChain(
 					[
-						new Nozzle(
-							{
-								nozzleType: Nozzle.Types.HandSmooth,
-								diameter: 1 + 1/2
-							}),
-						new Hose(3, 0)
-					]),
+						new Hose(3, 0),
+						new Nozzle({ nozzleType: Nozzle.Types.HandSmooth, diameter: 1 + 1/2 })
+					])),
 	
 				new ComponentGroup(
 					"Trash line (default setting)",
+					ComponentChainLink.createStraightLineChain(
 					[
-						new Nozzle(
-							{
-								nozzleType: Nozzle.Types.HandFogConventional_TrashLine,
-								diameter: 1 + 1/2
-							}),
-						new Hose(1.75, 100)
-					]),
+						new Hose(1.75, 100),
+						new Nozzle({ nozzleType: Nozzle.Types.HandFogConventional_TrashLine, diameter: 1 + 1/2 })
+					])),
 										
 				new ComponentGroup(
 					"High-rise pack by itself",
+					ComponentChainLink.createStraightLineChain(
 					[
-						new Nozzle(
-							{
-								nozzleType: Nozzle.Types.HandFogLowPressure,
-								diameter: 1 + 1/2
-							}),
-							new Hose(1.75, 150),
-							new IntermediateAppliance(IntermediateAppliance.Types.Wye)
-					]),
+						new IntermediateAppliance(IntermediateAppliance.Types.Wye),
+						new Hose(1.75, 150),
+						new Nozzle({ nozzleType: Nozzle.Types.HandFogLowPressure, diameter: 1 + 1/2 })
+					])),
 	
 				new ComponentGroup(
 					function() { return `High-rise pack on standpipe, to ${this.elevationText}, supplied by ${this.getTailHoseText(5)}`; },
+					ComponentChainLink.createStraightLineChain(
 					[
-						new Nozzle(
-							{
-								nozzleType: Nozzle.Types.HandFogLowPressure,
-								diameter: 1 + 1/2
-							}),
-						new Hose(1.75, 150),
-						new IntermediateAppliance(IntermediateAppliance.Types.Wye),
+						new Hose(5, 0),
 						new IntermediateAppliance(IntermediateAppliance.Types.Standpipe),
 						new Elevation(0),
-						new Hose(5, 0)
-					]),
+						new IntermediateAppliance(IntermediateAppliance.Types.Wye),
+						new Hose(1.75, 150),
+						new Nozzle({ nozzleType: Nozzle.Types.HandFogLowPressure, diameter: 1 + 1/2 })
+					])),
 	
 				new ComponentGroup(
 					"Deck gun with 1 3/8\" tip",
+					ComponentChainLink.createStraightLineChain(
 					[
-						new Nozzle(
-							{
-								nozzleType: Nozzle.Types.MasterSmooth,
-								diameter: 1 + 3/8
-							}),
-						new IntermediateAppliance(IntermediateAppliance.Types.MasterStreamDevice)
-					]),
+						new IntermediateAppliance(IntermediateAppliance.Types.MasterStreamDevice),
+						new Nozzle({ nozzleType: Nozzle.Types.MasterSmooth, diameter: 1 + 3/8 })
+					])),
 
 				new ComponentGroup(
 					"Deck gun with 1 1/2\" tip",
+					ComponentChainLink.createStraightLineChain(
 					[
-						new Nozzle(
-							{
-								nozzleType: Nozzle.Types.MasterSmooth,
-								diameter: 1 + 1/2
-							}),
-						new IntermediateAppliance(IntermediateAppliance.Types.MasterStreamDevice)
-					]),
+						new IntermediateAppliance(IntermediateAppliance.Types.MasterStreamDevice),
+						new Nozzle({ nozzleType: Nozzle.Types.MasterSmooth, diameter: 1 + 1/2 })
+					])),
 
 				new ComponentGroup(
 					"Deck gun with 1 3/4\" tip",
+					ComponentChainLink.createStraightLineChain(
 					[
-						new Nozzle(
-							{
-								nozzleType: Nozzle.Types.MasterSmooth,
-								diameter: 1 + 3/4
-							}),
-						new IntermediateAppliance(IntermediateAppliance.Types.MasterStreamDevice)
-					]),
+						new IntermediateAppliance(IntermediateAppliance.Types.MasterStreamDevice),
+						new Nozzle({ nozzleType: Nozzle.Types.MasterSmooth, diameter: 1 + 3/4 })
+					])),
 
 				new ComponentGroup(
 					"Deck gun with 2\" tip",
+					ComponentChainLink.createStraightLineChain(
 					[
-						new Nozzle(
-							{
-								nozzleType: Nozzle.Types.MasterSmooth,
-								diameter: 2
-							}),
-						new IntermediateAppliance(IntermediateAppliance.Types.MasterStreamDevice)
-					]),
+						new IntermediateAppliance(IntermediateAppliance.Types.MasterStreamDevice),
+						new Nozzle({ nozzleType: Nozzle.Types.MasterSmooth, diameter: 2 })
+					])),
 
 				new ComponentGroup(
 					"Deck gun with fog nozzle",
+					ComponentChainLink.createStraightLineChain(
 					[
-						new Nozzle({ nozzleType: Nozzle.Types.MasterFog }),
-						new IntermediateAppliance(IntermediateAppliance.Types.MasterStreamDevice)
-					])*/
-			])),
-/*
+						new IntermediateAppliance(IntermediateAppliance.Types.MasterStreamDevice),
+						new Nozzle({ nozzleType: Nozzle.Types.MasterFog })						
+					]))
+			]))/*,
+
 	new ConfigurationsSet(
 		"NOZZLES_ALONE",
 		"Nozzles Alone",
