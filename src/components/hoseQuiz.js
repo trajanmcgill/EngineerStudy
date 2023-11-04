@@ -144,14 +144,14 @@ class QuizApp
 				"Nozzle Flow Rates",
 				GEVFC_ConfigurationsSets.getById("NOZZLES_ALONE"),
 				false,
-				{ flowQuestion: "Flow rate (gallons per minute)" } )/*,
+				{ flowQuestion: "Flow rate (gallons per minute)" } ),
 
 			new Quiz(
 				"BASE_FRICTION_LOSS_ITEMS_COMMON",
 				"Base Friction Losses (Common)",
 				GEVFC_ConfigurationsSets.getById("BASE_FRICTION_LOSS_ITEMS_COMMON"),
 				false,
-				{ pressureQuestion: "Friction loss (p.s.i.)" } ),
+				{ pressureQuestion: "Friction loss (p.s.i.)" } )/*,
 
 			new Quiz(
 				"GEVFC_REALISTIC_SCENARIOS",

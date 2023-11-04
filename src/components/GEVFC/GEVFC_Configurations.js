@@ -239,30 +239,62 @@ const GEVFC_ConfigurationsSets =
 					"Piercing nozzle",
 					ComponentChainLink.createStraightLineChain(
 						[new Nozzle({ nozzleType: Nozzle.Types.Piercing })]))
-			]))/*,
+			])),
 	
 	new ConfigurationsSet(
 		"BASE_FRICTION_LOSS_ITEMS_COMMON",
 		"Base Friction Loss Items (Common)",
 		Object.freeze(
 			[
-				new ComponentGroup("1 3/4\" hose at 150 gallons per minute, per 100\'", [new Hose(1 + 3/4, 100)], 150),
-				new ComponentGroup("1 3/4\" hose at 185 gallons per minute, per 100\'", [new Hose(1 + 3/4, 100)], 185),
-				new ComponentGroup("2 1/2\" hose at 250 gallons per minute, per 100\'", [new Hose(2 + 1/2, 100)], 250),
-				new ComponentGroup("2 1/2\" hose at 300 gallons per minute, per 100\'", [new Hose(2 + 1/2, 100)], 300),
-				new ComponentGroup("3\" hose at 150 gallons per minute, per 100\'", [new Hose(3, 100)], 150),
-				new ComponentGroup("3\" hose at 185 gallons per minute, per 100\'", [new Hose(3, 100)], 185),
-				new ComponentGroup("3\" hose at 250 gallons per minute, per 100\'", [new Hose(3, 100)], 250),
-				new ComponentGroup("3\" hose at 300 gallons per minute, per 100\'", [new Hose(3, 100)], 300),
-				new ComponentGroup("3\" hose at 400 gallons per minute, per 100\'", [new Hose(3, 100)], 400),
-				new ComponentGroup("3\" hose at 500 gallons per minute, per 100\'", [new Hose(3, 100)], 500),
-				new ComponentGroup("Aerial waterway (via direct inlet)", [new IntermediateAppliance(IntermediateAppliance.Types.AerialWaterway_Inlet)]),
-				new ComponentGroup("Aerial waterway (from truck pump)", [new IntermediateAppliance(IntermediateAppliance.Types.AerialWaterway_Pump)]),
-				new ComponentGroup("Wye", [new IntermediateAppliance(IntermediateAppliance.Types.Wye)]),
-				new ComponentGroup("Siamese connection", [new IntermediateAppliance(IntermediateAppliance.Types.Siamese)]),
-				new ComponentGroup("Master stream device", [new IntermediateAppliance(IntermediateAppliance.Types.MasterStreamDevice)]),
-				new ComponentGroup("Standpipe system", [new IntermediateAppliance(IntermediateAppliance.Types.Standpipe)])
-			])) */
+				new ComponentGroup(
+					"1 3/4\" hose at 150 gallons per minute, per 100\'",
+					ComponentChainLink.createStraightLineChain([new Hose(1 + 3/4, 100)], 150)),
+				new ComponentGroup(
+					"1 3/4\" hose at 185 gallons per minute, per 100\'",
+					ComponentChainLink.createStraightLineChain([new Hose(1 + 3/4, 100)], 185)),
+				new ComponentGroup(
+					"2 1/2\" hose at 250 gallons per minute, per 100\'",
+					ComponentChainLink.createStraightLineChain([new Hose(2 + 1/2, 100)], 250)),
+				new ComponentGroup(
+					"2 1/2\" hose at 300 gallons per minute, per 100\'",
+					ComponentChainLink.createStraightLineChain([new Hose(2 + 1/2, 100)], 300)),
+				new ComponentGroup(
+					"3\" hose at 150 gallons per minute, per 100\'",
+					ComponentChainLink.createStraightLineChain([new Hose(3, 100)], 150)),
+				new ComponentGroup(
+					"3\" hose at 185 gallons per minute, per 100\'",
+					ComponentChainLink.createStraightLineChain([new Hose(3, 100)], 185)),
+				new ComponentGroup(
+					"3\" hose at 250 gallons per minute, per 100\'",
+					ComponentChainLink.createStraightLineChain([new Hose(3, 100)], 250)),
+				new ComponentGroup(
+					"3\" hose at 300 gallons per minute, per 100\'",
+					ComponentChainLink.createStraightLineChain([new Hose(3, 100)], 300)),
+				new ComponentGroup(
+					"3\" hose at 400 gallons per minute, per 100\'",
+					ComponentChainLink.createStraightLineChain([new Hose(3, 100)], 400)),
+				new ComponentGroup(
+					"3\" hose at 500 gallons per minute, per 100\'",
+					ComponentChainLink.createStraightLineChain([new Hose(3, 100)], 500)),
+				new ComponentGroup(
+					"Aerial waterway (via direct inlet)",
+					ComponentChainLink.createStraightLineChain([new IntermediateAppliance(IntermediateAppliance.Types.AerialWaterway_Inlet)])),
+				new ComponentGroup(
+					"Aerial waterway (from truck pump)",
+					ComponentChainLink.createStraightLineChain([new IntermediateAppliance(IntermediateAppliance.Types.AerialWaterway_Pump)])),
+				new ComponentGroup(
+					"Wye",
+					ComponentChainLink.createStraightLineChain([new IntermediateAppliance(IntermediateAppliance.Types.Wye)])),
+				new ComponentGroup(
+					"Siamese connection",
+					ComponentChainLink.createStraightLineChain([new IntermediateAppliance(IntermediateAppliance.Types.Siamese)])),
+				new ComponentGroup(
+					"Master stream device",
+					ComponentChainLink.createStraightLineChain([new IntermediateAppliance(IntermediateAppliance.Types.MasterStreamDevice)])),
+				new ComponentGroup(
+					"Standpipe system",
+					ComponentChainLink.createStraightLineChain([new IntermediateAppliance(IntermediateAppliance.Types.Standpipe)]))
+			]))
 ];
 GEVFC_ConfigurationsSets.getById = function(id) { return this.find((configurationSet) => configurationSet.id === id); };
 Object.freeze(GEVFC_ConfigurationsSets);
