@@ -26,9 +26,39 @@ const ComponentTypes = (function()
 		Nozzle: "Nozzle",
 		Hose: "Hose",
 		IntermediateAppliance: "IntermediateAppliance",
-		Elevation: "Elevation"
+		Elevation: "Elevation",
+		SectionStart: "SectionStart"
 	});
 })(); // end ComponentTypes enum definition
+
+
+const SectionStart = (function()
+{
+	class SectionStart
+	{
+		#componentType;
+		#description;
+
+		constructor(description)
+		{
+			this.#componentType = ComponentTypes.SectionStart;
+			this.#description = description;
+		}
+
+		get componentType() { return this.#componentType; }
+		get description() { return this.#description; }
+		get pressureContribution() { return 0; }
+
+		duplicate(changes = {})
+		{
+			let isChanging = changes.match && changes.match(this);
+			return new SectionStart(isChanging ? changes.description : this.#description);
+		}
+	} // end class SectionStart
+
+
+	return Object.freeze(SectionStart);
+})(); // end SectionStart class generation code
 
 
 const Nozzle = (function()
@@ -423,7 +453,7 @@ class ComponentChainLink
 	{
 		this.#component = component;
 		this.#forcedFlowRate = forcedFlowRate;
-	}
+	} // end ComponentChainLink constructor
 
 	get component() { return this.#component; }
 
@@ -450,7 +480,7 @@ class ComponentChainLink
 		}
 
 		return this.#rememberedCalculatedFlowRate;
-	}
+	} // end flowRate property get
 
 	get pressureDelta()
 	{
@@ -461,7 +491,7 @@ class ComponentChainLink
 			return this.#component.pressureContribution(this.flowRate);
 		else
 			throw new Error(`Unable to determine pressure contribution of component ${this.#component.description}`);
-	}
+	} // end pressureDelta property get
 
 	get totalNeededPressure()
 	{
@@ -479,7 +509,7 @@ class ComponentChainLink
 		totalPressure += forwardPressure;
 
 		return totalPressure;
-	}
+	} // end totalNeededPressure property get
 
 	get downstreamElevation()
 	{
@@ -494,7 +524,7 @@ class ComponentChainLink
 				throw new Error("Invalid configuration - multiple elevations specified and they do not match.");
 		}
 		return returnValue;
-	}
+	} // end downstreamElevation property get
 
 	get allDownstreamElevations()
 	{
@@ -502,7 +532,7 @@ class ComponentChainLink
 		for (let link of this.#next)
 			allElevations = allElevations.concat(link.allDownstreamElevations);
 		return allElevations;
-	}
+	} // end allDownstreamElevations property get
 
 
 	findTailHose(diameter)
@@ -514,7 +544,7 @@ class ComponentChainLink
 			foundHose = this.#next.findTailHose(diameter);
 
 		return foundHose;
-	}
+	} // end findTailHose()
 
 
 	duplicate(changes, currentlyInTail = true)
@@ -525,7 +555,8 @@ class ComponentChainLink
 			nozzleChanges,
 			tailHoseTransformation,
 			tailIntermediateApplianceChanges,
-			elevationTransformation
+			elevationTransformation,
+			sectionChanges
 		} = changes;
 
 		let duplicatedComponent;
@@ -537,6 +568,10 @@ class ComponentChainLink
 			duplicatedComponent = this.#component.duplicate(currentlyInTail ? tailIntermediateApplianceChanges : {});
 		else if (this.#component.componentType === ComponentTypes.Elevation)
 			duplicatedComponent = this.#component.duplicate(elevationTransformation);
+		else if (this.#component.componentType === ComponentTypes.SectionStart)
+			duplicatedComponent = this.#component.duplicate(sectionChanges);
+		else
+			throw new Error("Unrecognized component type; unable to duplicate.");
 
 		let duplicatedChainLink = new ComponentChainLink(duplicatedComponent, forcedFlowRate ?? this.#forcedFlowRate);
 		
@@ -548,7 +583,7 @@ class ComponentChainLink
 		duplicatedChainLink.next = newNext;
 
 		return duplicatedChainLink;
-	}
+	} // end duplicate()
 
 
 	static createStraightLineChain(componentsArray, forcedFlowRate = null)
@@ -562,7 +597,7 @@ class ComponentChainLink
 			currentLink = currentLink.next = new ComponentChainLink(componentsArray[i], forcedFlowRate);
 
 		return firstLink;
-	}
+	} // end static createStraightLineChain()
 } // end class ComponentChainLink
 
 
@@ -616,4 +651,4 @@ class ComponentGroup
 } // end class ComponentGroup
 
 
-export { ComponentTypes, Nozzle, Hose, IntermediateAppliance, Elevation, ComponentChainLink, ComponentGroup };
+export { ComponentTypes, Nozzle, Hose, IntermediateAppliance, Elevation, SectionStart, ComponentChainLink, ComponentGroup };

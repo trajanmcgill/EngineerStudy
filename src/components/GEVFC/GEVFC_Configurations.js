@@ -1,5 +1,5 @@
 import { ConfigurationsSet } from "../engineering/configurationsSet";
-import { ComponentTypes, Nozzle, Hose, IntermediateAppliance, Elevation, ComponentChainLink, ComponentGroup } from "../engineering/components";
+import { ComponentTypes, Nozzle, Hose, IntermediateAppliance, Elevation, SectionStart, ComponentChainLink, ComponentGroup } from "../engineering/components";
 
 const GEVFC_ConfigurationsSets =
 [
@@ -31,11 +31,12 @@ const GEVFC_ConfigurationsSets =
 					ComponentChainLink.createStraightLineChain(
 					[
 						new Hose(3, 0),
+						new SectionStart("Total skid load assembly by itself"),
 						new IntermediateAppliance(IntermediateAppliance.Types.Wye),
 						new Hose(1.75, 150),
 						new Elevation(0),
 						new Nozzle({ nozzleType: Nozzle.Types.HandFogLowPressure, diameter: 1 + 1/2 })
-					])),
+					]))/*,
 
 				new ComponentGroup(
 					function() { return `1 3/4\" skid load with ${this.getTailHoseText(3)}, to ${this.elevationText}, with a 2nd hand line (high rise pack) also attached at the wye`; },
@@ -172,7 +173,7 @@ const GEVFC_ConfigurationsSets =
 					[
 						new IntermediateAppliance(IntermediateAppliance.Types.MasterStreamDevice),
 						new Nozzle({ nozzleType: Nozzle.Types.MasterFog })						
-					]))
+					]))*/
 			])),
 
 	new ConfigurationsSet(
