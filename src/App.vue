@@ -63,7 +63,7 @@
 			</div>
 			<div id="TimersArea">
 				<div class="BadgeDisplay" id="CurrentQuestionTimer">Current question: {{ timeElapsed }}</div>
-				<div class="BadgeDisplay" id="AverageTimer">Average time to correct answer: {{ avgAnswerTime }}</div>
+				<div class="BadgeDisplay" id="AverageTimer">Average time to answer: {{ avgAnswerTime }}</div>
 			</div>
 		</div>
 	</footer>

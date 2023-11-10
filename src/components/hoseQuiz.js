@@ -89,20 +89,31 @@ class Quiz
 		for (const currentConfiguration of allConfigurations)
 		{
 			// Supply the questions and answers related to this configuration.
-			let questions = [];
+			let standardQuestions = [],
+				supplementaryQuestions = [],
+				allIndividualValues = currentConfiguration.allIndividualValues;
 			if (this.#flowQuestion)
-				questions.push(new Question(this.#flowQuestion, currentConfiguration.flowRate));
+				standardQuestions.push(new Question(this.#flowQuestion, currentConfiguration.flowRate));
 			if (this.#pressureQuestion)
-				questions.push(new Question(this.#pressureQuestion, currentConfiguration.totalNeededPressure));
+				standardQuestions.push(new Question(this.#pressureQuestion, currentConfiguration.totalNeededPressure));
+
+			for (let individualValue of allIndividualValues)
+			{
+				if (this.#flowQuestion)
+					supplementaryQuestions.push(new Question(`For ${individualValue.component.description}, ${this.#flowQuestion}`, individualValue.flowRate));
+				if (this.#pressureQuestion)
+					supplementaryQuestions.push(new Question(`For ${individualValue.component.description}, ${this.#pressureQuestion}`, individualValue.pressureDelta));
+			}
 
 			let problemDefinition =
 			{
 				scenario: currentConfiguration.description,
-				questions: questions
+				standardQuestions: standardQuestions,
+				supplementaryQuestions: supplementaryQuestions
 			};
 			yield problemDefinition;
 		}
-	}
+	} // end *getProblems()
 } // end class Quiz
 
 
@@ -194,7 +205,12 @@ class QuizApp
 		while (true)
 		{
 			try { await this.#offerQuiz(); }
-			catch (err) { this.UI.writeLine("** Ending quiz. **\n", new TextFormat({ textColor: "#59cd90" })); }
+			catch (err)
+			{
+				this.UI.writeLine(`** Error: ${err.message} **`, new TextFormat({ textColor: "red" }));
+				this.UI.writeLine("** Ending quiz. **\n", new TextFormat({ textColor: "#59cd90" }));
+				break;
+			}
 		}
 	}
 
@@ -205,7 +221,7 @@ class QuizApp
 		this.#currentQuestionTimeElapsed = 0;
 		this.#currentQuestionStartTime = Date.now();
 		this.#timerInterval = window.setInterval(function() { thisObject.updateTimer() }, TimerRegularity);
-	}
+	} // end startTimer()
 
 
 	updateTimer()
@@ -214,7 +230,7 @@ class QuizApp
 		this.#currentQuestionTimeElapsed = this.#getTimeString(questionTime_ms);
 		if (this.#externalTimerUpdater)
 			this.#externalTimerUpdater(this.#currentQuestionTimeElapsed);
-	}
+	} // end updateTimer()
 
 
 	stopTimer()
@@ -224,7 +240,8 @@ class QuizApp
 			window.clearInterval(this.#timerInterval);
 			this.#timerInterval = null;
 		}
-	}
+	} // end stopTimer()
+
 
 	updateAvgTime()
 	{
@@ -240,7 +257,7 @@ class QuizApp
 
 		if (this.#externalAvgTimeUpdater)
 			this.#externalAvgTimeUpdater(this.#avgQuestionTimeElapsed);
-	}
+	} // end updateAvgTime()
 
 
 	#getTimeString(milliseconds)
@@ -249,7 +266,7 @@ class QuizApp
 			minutesElapsed = Math.floor(secondsElapsed / 60),
 			remainingSeconds = String(Math.round(secondsElapsed % 60)).padStart(2, "0");
 		return `${minutesElapsed}:${remainingSeconds}`;
-	}
+	} // end #getTimeString()
 
 
 	#buildRealisticConfigurationsSet(baseConfigurationsSet)
@@ -306,7 +323,7 @@ class QuizApp
 
 	async #askQuestion(question, showExpectedAnswer, moveOnEvenIfIncorrect)
 	{
-		let answeredCorrectly = false;
+		let isAnsweredCorrectly = false;
 
 		this.startTimer();
 		do
@@ -317,12 +334,12 @@ class QuizApp
 			if (evaluationResult.resultType === EvaluationResultType.Correct_Exact)
 			{
 				this.UI.writeLine("Correct!", new TextFormat({ textColor: "#f9eae1" }));
-				answeredCorrectly = true;
+				isAnsweredCorrectly = true;
 			}
 			else if (evaluationResult.resultType === EvaluationResultType.Correct_Rounded)
 			{
 				this.UI.writeLine(`Correct (rounded from ${evaluationResult.correctAnswer})`, new TextFormat({ textColor: "#f9eae1" }));
-				answeredCorrectly = true;
+				isAnsweredCorrectly = true;
 			}
 			else
 			{
@@ -330,14 +347,16 @@ class QuizApp
 				this.UI.writeLine(`Incorrect.${answerDisplayString}`, new TextFormat({ textStyles: [FormatTypes.Bold], textColor: "#e57a44" }));
 				this.#clearStreak();
 			}
-		} while (!answeredCorrectly && !moveOnEvenIfIncorrect);
+		} while (!isAnsweredCorrectly && !moveOnEvenIfIncorrect);
 	
 		this.#questionsAnswered++;
-		if (answeredCorrectly)
+		if (isAnsweredCorrectly)
 			this.#incrementStreak();
 		this.stopTimer();
 		this.updateAvgTime();
-	}
+
+		return isAnsweredCorrectly;
+	} // end #askQuestion()
 	
 	
 	#checkAnswer(question, userAnswer)
@@ -354,7 +373,7 @@ class QuizApp
 			result = EvaluationResultType.Incorrect;
 
 		return new EvaluationResult(result, correctAnswer);
-	}
+	} // end #checkAnswer()
 
 
 	async #offerQuiz()
@@ -369,15 +388,22 @@ class QuizApp
 		for (let nextProblem = problemGenerator.next(); !nextProblem.done; nextProblem = problemGenerator.next())
 		{
 			this.UI.writeLine(`\nScenario: ${nextProblem.value.scenario}`, new TextFormat({ textStyles: [FormatTypes.Bold], textColor: "#3fa7d6" }));
-			for (const question of nextProblem.value.questions)
-				await this.#askQuestion(question, false, false);
+			for (const question of nextProblem.value.standardQuestions)
+			{
+				let isAnsweredCorrectly = await this.#askQuestion(question, false, true); // CHANGE CODE HERE
+				if (!isAnsweredCorrectly)
+				{
+					for (const supplementaryQuestion of nextProblem.value.supplementaryQuestions)
+						await this.#askQuestion(supplementaryQuestion, false, false);
+				}
+			}
 		}
 
 		// If this was a dynamic quiz-- one with realistic scenarios-- then generate a new set of realistic scenarios
 		// before this quiz repeats next.
 		if (this.currentQuiz.isDynamic)
 			this.currentQuiz.configurationSet = this.#buildRealisticConfigurationsSet(this.currentQuiz.configurationSet);
-	}
+	} // end #offerQuiz()
 
 } // end class QuizApp
 

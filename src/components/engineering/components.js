@@ -460,11 +460,9 @@ class ComponentChainLink
 	get next() { return this.#next; }
 	set next(link) { this.#next = Array.isArray(link) ? link : [link]; }
 
-	get flowRate()
-	{
-		if (this.#rememberedCalculatedFlowRate !== null)
-			return this.#rememberedCalculatedFlowRate;
 
+	#calculateFlowRate()
+	{
 		if (this.#forcedFlowRate !== null)
 			this.#rememberedCalculatedFlowRate = this.#forcedFlowRate;
 		else if (this.#component.componentType === ComponentTypes.Nozzle)
@@ -478,9 +476,17 @@ class ComponentChainLink
 			for (let nextLink of this.#next)
 				this.#rememberedCalculatedFlowRate += nextLink.flowRate;
 		}
+	} // end #calculateFlowRate()
 
+
+	get flowRate()
+	{
+		if (this.#rememberedCalculatedFlowRate === null)
+			this.#calculateFlowRate();
+		
 		return this.#rememberedCalculatedFlowRate;
 	} // end flowRate property get
+
 
 	get pressureDelta()
 	{
@@ -492,6 +498,7 @@ class ComponentChainLink
 		else
 			throw new Error(`Unable to determine pressure contribution of component ${this.#component.description}`);
 	} // end pressureDelta property get
+
 
 	get totalNeededPressure()
 	{
@@ -511,6 +518,23 @@ class ComponentChainLink
 		return totalPressure;
 	} // end totalNeededPressure property get
 
+
+	get individualDownstreamNumbers()
+	{
+		if (this.#rememberedCalculatedFlowRate === null)
+			this.#calculateFlowRate();
+
+		let allDownstreamNumbers = [{ component: this.#component, flowRate: this.#rememberedCalculatedFlowRate, pressureDelta: this.pressureDelta }];
+
+		// Add those further downstream. Note that if the chain splits (there are two or more components directly after this one),
+		// we follow only the first one, assuming that both sides match, which really they should for any proper configuration.
+		if (this.#next.length > 0)
+			allDownstreamNumbers = allDownstreamNumbers.concat(this.#next[0].individualDownstreamNumbers);
+
+		return allDownstreamNumbers;
+	} // end individualDownstreamNumbers()
+
+
 	get downstreamElevation()
 	{
 		let elevations = this.allDownstreamElevations;
@@ -525,6 +549,7 @@ class ComponentChainLink
 		}
 		return returnValue;
 	} // end downstreamElevation property get
+
 
 	get allDownstreamElevations()
 	{
@@ -628,6 +653,7 @@ class ComponentGroup
 	get description() { return this.#descriptionFunction(); }
 	get flowRate() { return this.#componentChainStart.flowRate; }
 	get totalNeededPressure() { return this.#componentChainStart.totalNeededPressure; }
+	get allIndividualValues() { return this.#componentChainStart.individualDownstreamNumbers.reverse(); }
 	get elevation() { return this.#componentChainStart.downstreamElevation; }
 	get elevationText() { return Elevation.getElevationText(this.elevation); }
 
