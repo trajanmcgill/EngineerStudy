@@ -1,6 +1,3 @@
-import { ComponentGroup } from "./component";
-
-
 class ConfigurationsSet
 {
 	#id;

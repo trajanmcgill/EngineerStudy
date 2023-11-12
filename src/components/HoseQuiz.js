@@ -1,7 +1,8 @@
-import { Component, ComponentGroup } from "./engineering/component";
-import { ConfigurationsSet } from "./engineering/configurationsSet";
+import { Component } from "./engineering/Component";
+import { ComponentChain } from "./engineering/ComponentChain";
+import { ConfigurationsSet } from "./engineering/ConfigurationsSet";
 import { GEVFC_ConfigurationsSets } from "./GEVFC/GEVFC_Configurations";
-import { UserPromptTypes, FormatTypes, TextFormat } from "./ui";
+import { UserPromptTypes, FormatTypes, TextFormat } from "./UI";
 
 
 const Version = "1.1.0";
@@ -91,35 +92,35 @@ class Quiz
 			// Supply the questions and answers related to this configuration.
 			let standardQuestions = [],
 				supplementaryQuestions = [],
-				allIndividualValues = currentConfiguration.allIndividualValues;
+				allChainLinks = currentConfiguration.allChainLinks.reverse(); // Order from nozzle end
 			if (this.#flowQuestion)
 				standardQuestions.push(new Question(this.#flowQuestion, currentConfiguration.flowRate));
 			if (this.#pressureQuestion)
 				standardQuestions.push(new Question(this.#pressureQuestion, currentConfiguration.totalNeededPressure));
 
-			for (let individualValue of allIndividualValues)
+			for (const chainLink of allChainLinks)
 			{
-				let componentType = individualValue.component.componentType;
-				if (this.#flowQuestion && componentType === Component.ComponentTypes.Nozzle)
-				{
-					supplementaryQuestions.push(
-						new Question(`For a ${individualValue.component.description}, what is the flow rate (gallons per minute)`, individualValue.flowRate));
-				}
-				if (this.#pressureQuestion)
-				{
-					let pressureText = null;
-					if (componentType === Component.ComponentTypes.Elevation)
-						pressureText = `For going to the ${individualValue.component.description}, how much pressure is added (p.s.i.)`;
-					else if (componentType === Component.ComponentTypes.Hose)
-						pressureText = `For ${individualValue.component.description}, what is the friction loss (p.s.i.)`;
-					else if (componentType === Component.ComponentTypes.IntermediateAppliance)
-						pressureText = `For a ${individualValue.component.description}, what is the friction loss (p.s.i.)`;
-					else if (componentType === Component.ComponentTypes.Nozzle)
-						pressureText = `For a ${individualValue.component.description}, what is the pressure needed (p.s.i.)`;
+				const component = chainLink.component;
+				const componentType = component.componentType;
+				const componentDescription = component.description;
 
-					if (pressureText !== null)
-						supplementaryQuestions.push(new Question(pressureText, individualValue.pressureDelta));
+				let pressureQuestionText = null;
+				if (componentType === Component.ComponentTypes.Nozzle)
+				{
+					if (this.#flowQuestion)
+					{
+						supplementaryQuestions.push(
+							new Question(`For ${componentDescription}, what is the flow rate (gallons per minute)`, chainLink.flowRate));
+					}
+					pressureQuestionText = `For ${componentDescription} at ${chainLink.flowRate} g.p.m., what is the pressure needed (p.s.i.)`;
 				}
+				else if (componentType === Component.ComponentTypes.Elevation)
+					pressureQuestionText = `For going to ${componentDescription}, how much pressure is added (p.s.i.)`;
+				else if (componentType === Component.ComponentTypes.Hose || componentType === Component.ComponentTypes.IntermediateAppliance)
+					pressureQuestionText = `For ${componentDescription} at ${chainLink.flowRate} g.p.m., what is the friction loss (p.s.i.)`;
+
+				if (this.#pressureQuestion && pressureQuestionText !== null)
+					supplementaryQuestions.push(new Question(pressureQuestionText, chainLink.pressureDelta));
 			}
 
 			let problemDefinition =
@@ -305,15 +306,15 @@ class QuizApp
 							let newLength = hose.length;
 							if (hose.diameter === 3)
 							{
-								let maxLengths = (ComponentGroup.MaxAllowed3Inch - ComponentGroup.MinAllowed3Inch) / ComponentGroup.Multiples_3Inch;
+								let maxLengths = (ComponentChain.MaxAllowed3Inch - ComponentChain.MinAllowed3Inch) / ComponentChain.Multiples_3Inch;
 								let numLengths = Math.floor(Math.random() * (maxLengths + 1));
-								newLength = numLengths * ComponentGroup.Multiples_3Inch;
+								newLength = numLengths * ComponentChain.Multiples_3Inch;
 							}
 							else if (hose.diameter === 5)
 							{
-								let maxLengths = (ComponentGroup.MaxAllowed5InchToStandpipe - ComponentGroup.MinAllowed5InchToStandpipe) / ComponentGroup.Multiples_5Inch;
+								let maxLengths = (ComponentChain.MaxAllowed5InchToStandpipe - ComponentChain.MinAllowed5InchToStandpipe) / ComponentChain.Multiples_5Inch;
 								let numLengths = Math.floor(Math.random() * (maxLengths + 1));
-								newLength = numLengths * ComponentGroup.Multiples_5Inch;
+								newLength = numLengths * ComponentChain.Multiples_5Inch;
 							}
 
 							return { diameter: hose.diameter, length: newLength };
@@ -322,8 +323,8 @@ class QuizApp
 						elevationTransformation: function()
 						{
 							let newFloorCount =
-								Math.floor(Math.random() * (ComponentGroup.MaxAllowedFloorAboveGround - ComponentGroup.MinAllowedFloorAboveGround + 1))
-								+ ComponentGroup.MinAllowedFloorAboveGround;
+								Math.floor(Math.random() * (ComponentChain.MaxAllowedFloorAboveGround - ComponentChain.MinAllowedFloorAboveGround + 1))
+								+ ComponentChain.MinAllowedFloorAboveGround;
 							return newFloorCount;
 						}
 					});

@@ -1,7 +1,7 @@
 <script	setup>
 	import { ref, computed, onMounted } from 'vue';
-	import { CLI } from './components/cli';
-	import { QuizApp } from './components/hoseQuiz';
+	import { CLI } from './components/CLI';
+	import { QuizApp } from './components/HoseQuiz'
 
 	const Streak_Display = 10;
 	const Streak_Exclaim = 30;

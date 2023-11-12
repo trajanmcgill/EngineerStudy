@@ -1,4 +1,4 @@
-import { UserPromptTypes, FormatTypes } from "./ui";
+import { UserPromptTypes, FormatTypes } from "./UI";
 
 
 class CLI
