@@ -7,6 +7,7 @@ import { UserPromptTypes, FormatTypes, TextFormat } from "./UI";
 
 const Version = "1.1.0";
 const TimerRegularity = 250; // update the timer view every 0.25 seconds
+const WrongAnswersBeforeWalkThrough = 3;
 
 
 const EvaluationResultType = Object.freeze(
@@ -406,14 +407,27 @@ class QuizApp
 		for (let nextProblem = problemGenerator.next(); !nextProblem.done; nextProblem = problemGenerator.next())
 		{
 			this.UI.writeLine(`\nScenario: ${nextProblem.value.scenario}`, new TextFormat({ textStyles: [FormatTypes.Bold], textColor: "#3fa7d6" }));
-			for (const question of nextProblem.value.standardQuestions)
+			let i = 0, incorrectCount = 0;
+			while (i < nextProblem.value.standardQuestions.length)
 			{
-				let isAnsweredCorrectly = await this.#askQuestion(question, false, true); // CHANGE CODE HERE
-				if (!isAnsweredCorrectly)
+				let question = nextProblem.value.standardQuestions[i];
+				let isAnsweredCorrectly = await this.#askQuestion(question, false, true);
+				if (isAnsweredCorrectly)
 				{
-					this.UI.writeLine("Walking through individual components...");
-					for (const supplementaryQuestion of nextProblem.value.supplementaryQuestions)
-						await this.#askQuestion(supplementaryQuestion, false, false, 1);
+					incorrectCount = 0;
+					i++;
+				}
+				else
+				{
+					incorrectCount++;
+					if (incorrectCount >= WrongAnswersBeforeWalkThrough)
+					{
+						this.UI.writeLine("Walking through individual components...");
+						for (const supplementaryQuestion of nextProblem.value.supplementaryQuestions)
+							await this.#askQuestion(supplementaryQuestion, false, false, 1);
+						this.UI.writeLine(`Putting it all back together...Totals for ${nextProblem.value.scenario}:`);
+						i = 0; // Skip back to the first question for this scenario
+					}
 				}
 			}
 		}
