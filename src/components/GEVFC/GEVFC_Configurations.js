@@ -37,8 +37,8 @@ const GEVFC_ConfigurationsSets =
 						new Hose(1.75, 150),
 						new Elevation(0),
 						new Nozzle({ nozzleType: Nozzle.Types.HandFogLowPressure, diameter: 1 + 1/2 })
-					]))/*,
-
+					])),
+/*
 				new ComponentChain(
 					function() { return `1 3/4\" skid load with ${this.getTailHoseText(3)}, to ${this.elevationText}, with a 2nd hand line (high rise pack) also attached at the wye`; },
 					(function ()
@@ -59,7 +59,7 @@ const GEVFC_ConfigurationsSets =
 						wye.next = [handline1, handline2];
 						return chainStart;
 					})()),
-
+*/
 				new ComponentChain(
 					function() { return `1 3/4\" skid load with fog tip removed and ${this.getTailHoseText(3)}, to ${this.elevationText}`; },
 					ComponentChainLink.createStraightLineChain(
@@ -174,7 +174,7 @@ const GEVFC_ConfigurationsSets =
 					[
 						new IntermediateAppliance(IntermediateAppliance.Types.MasterStreamDevice),
 						new Nozzle({ nozzleType: Nozzle.Types.MasterFog })						
-					]))*/
+					]))
 			])),
 
 	new ConfigurationsSet(

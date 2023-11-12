@@ -3,7 +3,7 @@ import { UserPromptTypes, FormatTypes } from "./UI";
 
 class CLI
 {
-	#IndentSpaces = 2;
+	#SpacesPerIndentLevel = 2;
 
 	terminal;
 	readResolveFunc = null;
@@ -88,36 +88,13 @@ class CLI
 	}
 
 
-	getInput(userPrompt, promptType, indentLevel = 0)
-	{
-		let thisObject = this;
-		let startRead = this.#startRead;
-		if (userPrompt !== undefined && userPrompt !== null)
-		{
-			if (promptType === undefined || promptType === UserPromptTypes.Primary)
-				this.writeLine(userPrompt, { indentLevel: indentLevel });
-			else
-			{
-				let indentString = " ".repeat(this.#IndentSpaces * indentLevel);
-				this.terminal.set_prompt(`${indentString}${userPrompt}> `);
-			}
-		}
-		return new Promise(
-			(resolveFunc, rejectFunc) =>
-			{
-				startRead.call(thisObject, resolveFunc, rejectFunc);
-			});
-	}
-
-
-	writeLine(text, formattingObject)
+	#getFormattedText(text, formattingObject)
 	{
 		let prefix = "", postfix = "";
-		let indentDistance = 0;
 		if (formattingObject !== undefined)
 		{
 			let formatString = "";
-			for (const style of formattingObject.textStyles)
+			for (const style of (formattingObject.textStyles ?? []))
 			{
 				if (style === FormatTypes.Bold)
 					formatString += "b";
@@ -133,13 +110,50 @@ class CLI
 
 			prefix = `[[${formatString};${formattingObject.textColor};${formattingObject.backgroundColor}]`;
 			postfix = "]";
-
-			indentDistance = formattingObject.indentLevel ?? 0;
 		}
 
-		let indentString = " ".repeat(this.#IndentSpaces * (indentDistance ?? 0));
+		return (prefix + text + postfix);
+	}
 
-		this.terminal.echo(prefix + indentString + text + postfix);
+
+	getInput(userPrompt, promptType, formattingObject = {})
+	{
+		let thisObject = this;
+		let startRead = this.#startRead;
+		if (userPrompt !== undefined && userPrompt !== null)
+		{
+			if (promptType === undefined || promptType === UserPromptTypes.Primary)
+				this.writeLine(promptText, formattingObject);
+			else
+			{
+				let indentString = " ".repeat(this.#SpacesPerIndentLevel * (formattingObject.indentLevel ?? 0));
+				let promptText = this.#getFormattedText(indentString + userPrompt, formattingObject);
+
+				this.terminal.set_prompt(`${promptText}> `);
+			}
+		}
+		return new Promise(
+			(resolveFunc, rejectFunc) =>
+			{
+				startRead.call(thisObject, resolveFunc, rejectFunc);
+			});
+	}
+
+
+	writeLine(text, formattingObject)
+	{
+		let outputText;
+
+		if (formattingObject === undefined)
+			outputText = text;
+		else
+		{
+			let indentDistance = formattingObject.indentLevel ?? 0;
+			let indentString = " ".repeat(this.#SpacesPerIndentLevel * (indentDistance ?? 0));
+			outputText = this.#getFormattedText(indentString + text, formattingObject);
+		}
+
+		this.terminal.echo(outputText);
 	}
 
 }

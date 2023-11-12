@@ -38,15 +38,18 @@ class Question
 {
 	#prompt;
 	#answer;
+	#formatting;
 
-	constructor(prompt, answer)
+	constructor(prompt, answer, formatting = {})
 	{
 		this.#prompt = prompt;
 		this.#answer = answer;
+		this.#formatting = formatting;
 	}
 
 	get prompt() { return this.#prompt; }
 	get answer() { return this.#answer; }
+	get formatting() { return this.#formatting; }
 }
 
 
@@ -111,7 +114,7 @@ class Quiz
 					if (this.#flowQuestion)
 					{
 						supplementaryQuestions.push(
-							new Question(`For ${componentDescription}, what is the flow rate (gallons per minute)`, chainLink.flowRate));
+							new Question(`For ${componentDescription}, what is the flow rate (gallons per minute)`, chainLink.flowRate, { textColor: "aquamarine" }));
 					}
 					pressureQuestionText = `For ${componentDescription} at ${chainLink.flowRate} g.p.m., what is the pressure needed (p.s.i.)`;
 				}
@@ -121,7 +124,7 @@ class Quiz
 					pressureQuestionText = `For ${componentDescription} at ${chainLink.flowRate} g.p.m., what is the friction loss (p.s.i.)`;
 
 				if (this.#pressureQuestion && pressureQuestionText !== null)
-					supplementaryQuestions.push(new Question(pressureQuestionText, chainLink.pressureDelta));
+					supplementaryQuestions.push(new Question(pressureQuestionText, chainLink.pressureDelta, { textColor: "coral" }));
 			}
 
 			let problemDefinition =
@@ -347,7 +350,10 @@ class QuizApp
 		this.startTimer();
 		do
 		{
-			let userAnswer = await this.UI.getInput(question.prompt, UserPromptTypes.Secondary, indentLevel);
+			let formattingObject = question.formatting ?? {};
+			formattingObject.indentLevel = indentLevel;
+
+			let userAnswer = await this.UI.getInput(question.prompt, UserPromptTypes.Secondary, formattingObject );
 			let evaluationResult = this.#checkAnswer(question, userAnswer);
 
 			if (evaluationResult.resultType === EvaluationResultType.Correct_Exact)

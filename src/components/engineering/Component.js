@@ -43,6 +43,8 @@ const Component = (function()
 				fractionalText = `+${fractionalPart / 0.25}/4`;
 			else if (fractionalPart % 0.125 === 0)
 				fractionalText = `+${fractionalPart / 0.125}/8`;
+			else if (fractionalPart % 0.0625)
+				fractionalText = `+${fractionalPart / 0.0625}/16`;
 			else
 				return `${diameter}\"`;
 		
@@ -86,7 +88,7 @@ const Nozzle = (function()
 	{
 		HandSmooth: Object.freeze(
 		{
-			description: "smoothbore nozzle (hand line)",
+			description: "smoothbore nozzle (hand line pressure)",
 			nozzlePressure: 50,
 			flowRates: Object.freeze(
 			[
@@ -116,7 +118,7 @@ const Nozzle = (function()
 		}),
 		MasterSmooth: Object.freeze(
 		{
-			description: "smooth bore nozzle (master stream)",
+			description: "smooth bore nozzle (master stream pressure)",
 			nozzlePressure: 80,
 			flowRates: Object.freeze(
 			[
@@ -178,7 +180,10 @@ const Nozzle = (function()
 
 		constructor(nozzleDefinition)
 		{
-			const descriptionFunction = () => { return `a ${Component.diameterDescription(this.#diameter)} ${this.#nozzleType.description}`; };
+			const descriptionFunction =
+				nozzleDefinition.diameter !== undefined
+				? () => { return `a ${Component.diameterDescription(this.#diameter)} ${this.#nozzleType.description}`; }
+				: () => { return `a ${this.#nozzleType.description}`; };
 			const pressureContributionFunction = () => this.#nozzleType.nozzlePressure;
 
 			super(Component.ComponentTypes.Nozzle, descriptionFunction, pressureContributionFunction);
