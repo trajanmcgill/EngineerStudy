@@ -338,30 +338,30 @@ class QuizApp
 	} // end #buildRealisticConfigurationsSet()
 
 
-	async #askQuestion(question, showExpectedAnswer, moveOnEvenIfIncorrect)
+	async #askQuestion(question, showExpectedAnswer, moveOnEvenIfIncorrect, indentLevel = 0)
 	{
 		let isAnsweredCorrectly = false;
 
 		this.startTimer();
 		do
 		{
-			let userAnswer = await this.UI.getInput(question.prompt, UserPromptTypes.Secondary);
+			let userAnswer = await this.UI.getInput(question.prompt, UserPromptTypes.Secondary, indentLevel);
 			let evaluationResult = this.#checkAnswer(question, userAnswer);
 
 			if (evaluationResult.resultType === EvaluationResultType.Correct_Exact)
 			{
-				this.UI.writeLine("Correct!", new TextFormat({ textColor: "#f9eae1" }));
+				this.UI.writeLine("Correct!", new TextFormat({ textColor: "#f9eae1", indentLevel: indentLevel }));
 				isAnsweredCorrectly = true;
 			}
 			else if (evaluationResult.resultType === EvaluationResultType.Correct_Rounded)
 			{
-				this.UI.writeLine(`Correct (rounded from ${evaluationResult.correctAnswer})`, new TextFormat({ textColor: "#f9eae1" }));
+				this.UI.writeLine(`Correct (rounded from ${evaluationResult.correctAnswer})`, new TextFormat({ textColor: "#f9eae1", indentLevel: indentLevel }));
 				isAnsweredCorrectly = true;
 			}
 			else
 			{
 				let answerDisplayString = showExpectedAnswer ? ` Expected answer: ${evaluationResult.correctAnswer}.` : "";
-				this.UI.writeLine(`Incorrect.${answerDisplayString}`, new TextFormat({ textStyles: [FormatTypes.Bold], textColor: "#e57a44" }));
+				this.UI.writeLine(`Incorrect.${answerDisplayString}`, new TextFormat({ textStyles: [FormatTypes.Bold], textColor: "#e57a44", indentLevel: indentLevel }));
 				this.#clearStreak();
 			}
 		} while (!isAnsweredCorrectly && !moveOnEvenIfIncorrect);
@@ -412,7 +412,7 @@ class QuizApp
 				{
 					this.UI.writeLine("Walking through individual components...");
 					for (const supplementaryQuestion of nextProblem.value.supplementaryQuestions)
-						await this.#askQuestion(supplementaryQuestion, false, false);
+						await this.#askQuestion(supplementaryQuestion, false, false, 1);
 				}
 			}
 		}

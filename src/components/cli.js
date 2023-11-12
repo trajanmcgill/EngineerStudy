@@ -3,6 +3,8 @@ import { UserPromptTypes, FormatTypes } from "./ui";
 
 class CLI
 {
+	#IndentSpaces = 2;
+
 	terminal;
 	readResolveFunc = null;
 	readFailureFunc = null;
@@ -86,16 +88,19 @@ class CLI
 	}
 
 
-	getInput(userPrompt, promptType)
+	getInput(userPrompt, promptType, indentLevel = 0)
 	{
 		let thisObject = this;
 		let startRead = this.#startRead;
 		if (userPrompt !== undefined && userPrompt !== null)
 		{
 			if (promptType === undefined || promptType === UserPromptTypes.Primary)
-				this.writeLine(userPrompt);
+				this.writeLine(userPrompt, { indentLevel: indentLevel });
 			else
-				this.terminal.set_prompt(`${userPrompt}> `);
+			{
+				let indentString = " ".repeat(this.#IndentSpaces * indentLevel);
+				this.terminal.set_prompt(`${indentString}${userPrompt}> `);
+			}
 		}
 		return new Promise(
 			(resolveFunc, rejectFunc) =>
@@ -108,6 +113,7 @@ class CLI
 	writeLine(text, formattingObject)
 	{
 		let prefix = "", postfix = "";
+		let indentDistance = 0;
 		if (formattingObject !== undefined)
 		{
 			let formatString = "";
@@ -127,9 +133,13 @@ class CLI
 
 			prefix = `[[${formatString};${formattingObject.textColor};${formattingObject.backgroundColor}]`;
 			postfix = "]";
+
+			indentDistance = formattingObject.indentLevel ?? 0;
 		}
 
-		this.terminal.echo(prefix + text + postfix);
+		let indentString = " ".repeat(this.#IndentSpaces * (indentDistance ?? 0));
+
+		this.terminal.echo(prefix + indentString + text + postfix);
 	}
 
 }
