@@ -1,58 +1,77 @@
-function diameterDescription(diameter)
+const Component = (function()
 {
-	let wholePart = Math.trunc(diameter);
-	let fractionalPart = diameter - wholePart;
-	let fractionalText;
-
-	if (fractionalPart === 0)
-		fractionalText = "";
-	else if (fractionalPart % 0.5 === 0)
-		fractionalText = " 1/2";
-	else if (fractionalPart % 0.25 === 0)
-		fractionalPart = ` ${fractionalPart / 0.25}/4`;
-	else if (fractionalPart % 0.125 === 0)
-		fractionalPart = ` ${fractionalPart / 0.125}/8`;
-	else
-		return `${diameter}\"`;
-
-	return `${wholePart}${fractionalText}\"`;
-}
+	const _ComponentTypes = Object.freeze(
+		{
+			Nozzle: "Nozzle",
+			Hose: "Hose",
+			IntermediateAppliance: "IntermediateAppliance",
+			Elevation: "Elevation",
+			SectionStart: "SectionStart"
+		}); // end ComponentTypes enum definition
 
 
-const ComponentTypes = (function()
-{
-	return Object.freeze(
+	class Component
 	{
-		Nozzle: "Nozzle",
-		Hose: "Hose",
-		IntermediateAppliance: "IntermediateAppliance",
-		Elevation: "Elevation",
-		SectionStart: "SectionStart"
-	});
-})(); // end ComponentTypes enum definition
+		#componentType;
+		#descriptionFunction;
+		#pressureContributionFunction
+
+		constructor(componentType, descriptionFunction, pressureContributionFunction)
+		{
+			this.#componentType = componentType;
+			this.#descriptionFunction = descriptionFunction;
+			this.#pressureContributionFunction = pressureContributionFunction;
+		}
+
+		get componentType() { return this.#componentType; }
+		get description() { return this.#descriptionFunction(); }
+		get pressureContribution() { return this.#pressureContributionFunction(); }
+
+		static get ComponentTypes() { return _ComponentTypes; }
+
+		static diameterDescription(diameter)
+		{
+			let wholePart = Math.trunc(diameter);
+			let fractionalPart = diameter - wholePart;
+			let fractionalText;
+		
+			if (fractionalPart === 0)
+				fractionalText = "";
+			else if (fractionalPart % 0.5 === 0)
+				fractionalText = " 1/2";
+			else if (fractionalPart % 0.25 === 0)
+				fractionalPart = ` ${fractionalPart / 0.25}/4`;
+			else if (fractionalPart % 0.125 === 0)
+				fractionalPart = ` ${fractionalPart / 0.125}/8`;
+			else
+				return `${diameter}\"`;
+		
+			return `${wholePart}${fractionalText}\"`;
+		} // end static diameterDescription()
+	}
+
+	return Object.freeze(Component);
+})(); // end Component class generation code
 
 
 const SectionStart = (function()
 {
-	class SectionStart
+	class SectionStart extends Component
 	{
-		#componentType;
-		#description;
+		#sectionName;
 
-		constructor(description)
+		constructor(sectionName)
 		{
-			this.#componentType = ComponentTypes.SectionStart;
-			this.#description = description;
-		}
+			const descriptionFunction = () => this.#sectionName;
+			const pressureContributionFunction = () => 0;
 
-		get componentType() { return this.#componentType; }
-		get description() { return this.#description; }
-		get pressureContribution() { return 0; }
+			super(Component.ComponentTypes.SectionStart, descriptionFunction, pressureContributionFunction);
+		}
 
 		duplicate(changes = {})
 		{
 			let isChanging = changes.match && changes.match(this);
-			return new SectionStart(isChanging ? changes.description : this.#description);
+			return new SectionStart(isChanging ? changes.sectionName : this.#sectionName);
 		}
 	} // end class SectionStart
 
@@ -67,7 +86,7 @@ const Nozzle = (function()
 	{
 		HandSmooth: Object.freeze(
 		{
-			description: "Smoothbore (hand line)",
+			description: "smoothbore nozzle (hand line)",
 			nozzlePressure: 50,
 			flowRates: Object.freeze(
 			[
@@ -81,13 +100,13 @@ const Nozzle = (function()
 		}),
 		HandFogConventional_TrashLine: Object.freeze(
 		{
-			description: "Fog nozzle (hand line, conventional, GEVFC trash line setting)",
+			description: "fog nozzle (hand line, conventional, GEVFC trash line setting)",
 			nozzlePressure: 100,
 			flowRates: Object.freeze([{ diameter: 1+1/2, flowRate: 125 }])
 		}),
 		HandFogLowPressure: Object.freeze(
 		{
-			description: "Fog nozzle (hand line, low pressure)",
+			description: "fog nozzle (hand line, low pressure)",
 			nozzlePressure: 75,
 			flowRates: Object.freeze(
 			[
@@ -97,7 +116,7 @@ const Nozzle = (function()
 		}),
 		MasterSmooth: Object.freeze(
 		{
-			description: "Smooth bore (master stream)",
+			description: "smooth bore nozzle (master stream)",
 			nozzlePressure: 80,
 			flowRates: Object.freeze(
 			[
@@ -110,19 +129,19 @@ const Nozzle = (function()
 		}),
 		MasterSmoothReducedPressure: Object.freeze(
 		{
-			description: "Smooth bore (master stream, reduced pressure)",
+			description: "smooth bore nozzle (master stream, reduced pressure)",
 			nozzlePressure: 50,
 			flowRates: Object.freeze([{ diameter: 1+1/2, flowRate: 500 }])
 		}),
 		MasterFog: Object.freeze(
 		{
-			description: "Fog nozzle (master stream)",
+			description: "fog nozzle (master stream)",
 			nozzlePressure: 100,
 			flowRate: 1000
 		}),
 		Cellar: Object.freeze(
 		{
-			description: "Cellar nozzle",
+			description: "cellar nozzle",
 			nozzlePressure: 100,
 			flowRates: Object.freeze(
 			[
@@ -133,7 +152,7 @@ const Nozzle = (function()
 		}),
 		Piercing: Object.freeze(
 		{
-			description: "Piercing nozzle",
+			description: "piercing nozzle",
 			nozzlePressure: 100,
 			flowRate: 125
 		}),
@@ -143,16 +162,15 @@ const Nozzle = (function()
 		*/
 		FoamEductor: Object.freeze(
 		{
-			description: "Foam eductor",
+			description: "foam eductor",
 			nozzlePressure: 200,
 			flowRate: 125
 		})
 	}); // end NozzleTypes definition
 
 
-	class Nozzle
+	class Nozzle extends Component
 	{
-		#componentType;
 		#nozzleType;
 		#diameter;
 		#identifier;
@@ -160,7 +178,11 @@ const Nozzle = (function()
 
 		constructor(nozzleDefinition)
 		{
-			this.#componentType = ComponentTypes.Nozzle;
+			const descriptionFunction = () => this.#nozzleType.description;
+			const pressureContributionFunction = () => this.#nozzleType.nozzlePressure;
+
+			super(Component.ComponentTypes.Nozzle, descriptionFunction, pressureContributionFunction);
+			
 			this.#nozzleType = nozzleDefinition.nozzleType;
 			this.#diameter = nozzleDefinition.diameter;
 			this.#identifier = nozzleDefinition.identifier;
@@ -177,11 +199,8 @@ const Nozzle = (function()
 
 		static get Types() { return NozzleTypes; }
 
-		get componentType() { return this.#componentType; }
 		get nozzleType() { return this.#nozzleType; }
-		get description() { return this.#nozzleType.description; }
 		get flowRate() { return this.#flowRateFunction(); }
-		get pressureContribution() { return this.#nozzleType.nozzlePressure; }
 
 		duplicate(changes = {})
 		{
@@ -283,28 +302,28 @@ const Hose = (function()
 		},
 	]; // end HoseFrictionLossTables array
 
-
-	class Hose
+	class Hose extends Component
 	{
-		#componentType;
 		#diameter;
 		length;
 		#frictionLossTable;
 	
-
 		constructor(diameter, length)
 		{
-			this.#componentType = ComponentTypes.Hose;
+			const descriptionFunction = () => `${this.length}\' of ${Component.diameterDescription(this.#diameter)} hose`;
+			const pressureContributionFunction = function()
+			{
+				let thisObject = this;
+				return ((flowRate) => thisObject.getFrictionLoss(flowRate));
+			};
+
+			super(Component.ComponentTypes.Hose, descriptionFunction, pressureContributionFunction);
 			this.length = length;
 			this.#diameter = diameter;
 			this.#frictionLossTable = HoseFrictionLossTables.find((frictionLossTable) => frictionLossTable.diameter === diameter);
 		}
-		
 
-		get componentType() { return this.#componentType; }
-		get description() { return `${this.length}\' of ${diameterDescription(this.#diameter)} hose` }
 		get diameter() { return this.#diameter; }
-	
 		
 		getFrictionLoss(flowRate)
 		{
@@ -313,15 +332,7 @@ const Hose = (function()
 				return this.#frictionLossTable.formulaPer100Feet(flowRate) * this.length / 100;
 			else
 				return precalculatedValue.frictionLossPer100ft * this.length / 100;
-		}
-		
-
-		get pressureContribution()
-		{
-			let thisObject = this;
-			return ((flowRate) => thisObject.getFrictionLoss(flowRate));
-		}
-
+		} // end getFrictionLoss()
 
 		duplicate(transformationFunction = (hose) => ({ diameter: hose.diameter, length: hose.length }))
 		{
@@ -367,23 +378,22 @@ const IntermediateAppliance = (function()
 	}); // end IntermediateApplianceTypes definition
 
 
-	class IntermediateAppliance
+	class IntermediateAppliance extends Component
 	{
-		#componentType;
 		#intermediateApplianceType;
 
 		static get Types() { return IntermediateApplianceTypes; }
 
 		constructor(type)
 		{
-			this.#componentType = ComponentTypes.IntermediateAppliance;
+			const descriptionFunction = () => this.#intermediateApplianceType.description;
+			const pressureContributionFunction = () => this.#intermediateApplianceType.frictionLoss;
+
+			super(Component.ComponentTypes.IntermediateAppliance, descriptionFunction, pressureContributionFunction);
 			this.#intermediateApplianceType = type;
 		}
 
-		get componentType() { return this.#componentType; }
 		get intermediateApplianceType() { return this.#intermediateApplianceType.id; }
-		get description() { return this.#intermediateApplianceType.description; }
-		get pressureContribution() { return this.#intermediateApplianceType.frictionLoss; }
 
 		duplicate(changes = {})
 		{
@@ -402,21 +412,20 @@ const Elevation = (function()
 {
 	const PSI_Per_Floor = 5;
 
-	class Elevation
+	class Elevation extends Component
 	{
-		#componentType;
 		floorCount;
 
 		constructor(floorCount)
 		{
-			this.#componentType = ComponentTypes.Elevation;
+			const descriptionFunction = () => Elevation.getElevationText(this.floorCount, false);
+			const pressureContributionFunction = () => this.floorCount * PSI_Per_Floor;
+
+			super(Component.ComponentTypes.Elevation, descriptionFunction, pressureContributionFunction);
 			this.floorCount = floorCount;
 		}
 
-		get componentType() { return this.#componentType; }
-		get description() { return Elevation.getElevationText(this.floorCount, false); }
-		get descriptionVerbose() { return `elevation of ${Math.abs(this.floorCount)} floors ${this.floorCount >=0 ? "above" : "below"} ground level`; }
-		get pressureContribution() { return this.floorCount * PSI_Per_Floor; }
+		//get descriptionVerbose() { return `elevation of ${Math.abs(this.floorCount)} floors ${this.floorCount >=0 ? "above" : "below"} ground level`; }
 
 		duplicate(transformationFunction = (elevation) => elevation.floorCount)
 		{
@@ -465,7 +474,7 @@ class ComponentChainLink
 	{
 		if (this.#forcedFlowRate !== null)
 			this.#rememberedCalculatedFlowRate = this.#forcedFlowRate;
-		else if (this.#component.componentType === ComponentTypes.Nozzle)
+		else if (this.#component.componentType === Component.ComponentTypes.Nozzle)
 			this.#rememberedCalculatedFlowRate = this.#component.flowRate;
 		else
 		{
@@ -553,7 +562,7 @@ class ComponentChainLink
 
 	get allDownstreamElevations()
 	{
-		let allElevations = (this.#component.componentType === ComponentTypes.Elevation) ? [this.#component.floorCount] : [];
+		let allElevations = (this.#component.componentType === Component.ComponentTypes.Elevation) ? [this.#component.floorCount] : [];
 		for (let link of this.#next)
 			allElevations = allElevations.concat(link.allDownstreamElevations);
 		return allElevations;
@@ -563,7 +572,7 @@ class ComponentChainLink
 	findTailHose(diameter)
 	{
 		let foundHose = null;
-		if (this.#component.componentType === ComponentTypes.Hose && this.#component.diameter === diameter)
+		if (this.#component.componentType === Component.ComponentTypes.Hose && this.#component.diameter === diameter)
 			foundHose = this.#component;
 		else if (this.#next.length === 1)
 			foundHose = this.#next.findTailHose(diameter);
@@ -585,15 +594,15 @@ class ComponentChainLink
 		} = changes;
 
 		let duplicatedComponent;
-		if (this.#component.componentType === ComponentTypes.Nozzle)
+		if (this.#component.componentType === Component.ComponentTypes.Nozzle)
 			duplicatedComponent = this.#component.duplicate(nozzleChanges)
-		else if (this.#component.componentType === ComponentTypes.Hose)
+		else if (this.#component.componentType === Component.ComponentTypes.Hose)
 			duplicatedComponent = this.#component.duplicate(currentlyInTail ? tailHoseTransformation : undefined);
-		else if (this.#component.componentType === ComponentTypes.IntermediateAppliance)
+		else if (this.#component.componentType === Component.ComponentTypes.IntermediateAppliance)
 			duplicatedComponent = this.#component.duplicate(currentlyInTail ? tailIntermediateApplianceChanges : {});
-		else if (this.#component.componentType === ComponentTypes.Elevation)
+		else if (this.#component.componentType === Component.ComponentTypes.Elevation)
 			duplicatedComponent = this.#component.duplicate(elevationTransformation);
-		else if (this.#component.componentType === ComponentTypes.SectionStart)
+		else if (this.#component.componentType === Component.ComponentTypes.SectionStart)
 			duplicatedComponent = this.#component.duplicate(sectionChanges);
 		else
 			throw new Error("Unrecognized component type; unable to duplicate.");
@@ -677,4 +686,4 @@ class ComponentGroup
 } // end class ComponentGroup
 
 
-export { ComponentTypes, Nozzle, Hose, IntermediateAppliance, Elevation, SectionStart, ComponentChainLink, ComponentGroup };
+export { Component, Nozzle, Hose, IntermediateAppliance, Elevation, SectionStart, ComponentChainLink, ComponentGroup };

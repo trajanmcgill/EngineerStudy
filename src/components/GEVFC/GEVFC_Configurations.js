@@ -1,5 +1,5 @@
 import { ConfigurationsSet } from "../engineering/configurationsSet";
-import { ComponentTypes, Nozzle, Hose, IntermediateAppliance, Elevation, SectionStart, ComponentChainLink, ComponentGroup } from "../engineering/components";
+import { Component, Nozzle, Hose, IntermediateAppliance, Elevation, SectionStart, ComponentChainLink, ComponentGroup } from "../engineering/components";
 
 const GEVFC_ConfigurationsSets =
 [

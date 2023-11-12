@@ -1,4 +1,4 @@
-import { ComponentTypes, ComponentGroup } from "./engineering/components";
+import { Component, ComponentGroup } from "./engineering/components";
 import { ConfigurationsSet } from "./engineering/configurationsSet";
 import { GEVFC_ConfigurationsSets } from "./GEVFC/GEVFC_Configurations";
 import { UserPromptTypes, FormatTypes, TextFormat } from "./ui";
@@ -99,10 +99,27 @@ class Quiz
 
 			for (let individualValue of allIndividualValues)
 			{
-				if (this.#flowQuestion)
-					supplementaryQuestions.push(new Question(`For ${individualValue.component.description}, ${this.#flowQuestion}`, individualValue.flowRate));
+				let componentType = individualValue.component.componentType;
+				if (this.#flowQuestion && componentType === Component.ComponentTypes.Nozzle)
+				{
+					supplementaryQuestions.push(
+						new Question(`For a ${individualValue.component.description}, what is the flow rate (gallons per minute)`, individualValue.flowRate));
+				}
 				if (this.#pressureQuestion)
-					supplementaryQuestions.push(new Question(`For ${individualValue.component.description}, ${this.#pressureQuestion}`, individualValue.pressureDelta));
+				{
+					let pressureText = null;
+					if (componentType === Component.ComponentTypes.Elevation)
+						pressureText = `For going to the ${individualValue.component.description}, how much pressure is added (p.s.i.)`;
+					else if (componentType === Component.ComponentTypes.Hose)
+						pressureText = `For ${individualValue.component.description}, what is the friction loss (p.s.i.)`;
+					else if (componentType === Component.ComponentTypes.IntermediateAppliance)
+						pressureText = `For a ${individualValue.component.description}, what is the friction loss (p.s.i.)`;
+					else if (componentType === Component.ComponentTypes.Nozzle)
+						pressureText = `For a ${individualValue.component.description}, what is the pressure needed (p.s.i.)`;
+
+					if (pressureText !== null)
+						supplementaryQuestions.push(new Question(pressureText, individualValue.pressureDelta));
+				}
 			}
 
 			let problemDefinition =
@@ -393,6 +410,7 @@ class QuizApp
 				let isAnsweredCorrectly = await this.#askQuestion(question, false, true); // CHANGE CODE HERE
 				if (!isAnsweredCorrectly)
 				{
+					this.UI.writeLine("Walking through individual components...");
 					for (const supplementaryQuestion of nextProblem.value.supplementaryQuestions)
 						await this.#askQuestion(supplementaryQuestion, false, false);
 				}
