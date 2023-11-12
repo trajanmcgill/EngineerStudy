@@ -1,4 +1,4 @@
-import { Component, ComponentGroup } from "./engineering/components";
+import { Component, ComponentGroup } from "./engineering/component";
 import { ConfigurationsSet } from "./engineering/configurationsSet";
 import { GEVFC_ConfigurationsSets } from "./GEVFC/GEVFC_Configurations";
 import { UserPromptTypes, FormatTypes, TextFormat } from "./ui";

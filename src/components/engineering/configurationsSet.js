@@ -1,4 +1,4 @@
-import { ComponentGroup } from "./components";
+import { ComponentGroup } from "./component";
 
 
 class ConfigurationsSet
