@@ -432,7 +432,7 @@ class QuizApp
 
 		if (floatAnswer === correctAnswer)
 			result = EvaluationResultType.Correct_Exact;
-		else if ((correctAnswer % 1 !== 0) && (floatAnswer % 1 === 0) && (Math.abs(floatAnswer - correctAnswer) <= 0.5))
+		else if ((correctAnswer % 1 !== 0) && (floatAnswer % 1 === 0) && (Math.abs(floatAnswer - correctAnswer) < 1))
 			result = EvaluationResultType.Correct_Rounded;
 		else
 			result = EvaluationResultType.Incorrect;
