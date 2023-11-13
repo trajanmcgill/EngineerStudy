@@ -5,7 +5,7 @@ import { GEVFC_ConfigurationsSets } from "./GEVFC/GEVFC_Configurations";
 import { InputCancellation, UserPromptTypes, FormatTypes, TextFormat } from "./UI";
 
 
-const Version = "1.1.0";
+const Version = "1.2.0";
 const TimerRegularity = 250; // update the timer view every 0.25 seconds
 const WrongAnswersBeforeWalkThrough = 3;
 const WalkThroughQuestionColor_FlowRate = "aquamarine";
