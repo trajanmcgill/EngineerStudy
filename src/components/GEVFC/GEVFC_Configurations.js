@@ -16,7 +16,7 @@ const GEVFC_ConfigurationsSets =
 						new Hose(1.75, 200),
 						new Elevation(0),
 						new Nozzle({ nozzleType: Nozzle.Types.HandFogLowPressure, diameter: 1 + 1/2 })
-					])),/*
+					])),
 
 				new ComponentChain(
 					function() { return `2 1/2\" crosslay to ${this.elevationText}`; },
@@ -32,12 +32,12 @@ const GEVFC_ConfigurationsSets =
 					ComponentChainLink.createStraightLineChain(
 					[
 						new Hose(3, 0),
-						new SectionStart("Total skid load assembly by itself"),
+						new Elevation(0),
+						new SectionStart("the total skid load assembly by itself"),
 						new IntermediateAppliance(IntermediateAppliance.Types.Wye),
 						new Hose(1.75, 150),
-						new Elevation(0),
 						new Nozzle({ nozzleType: Nozzle.Types.HandFogLowPressure, diameter: 1 + 1/2 })
-					])), */
+					])),
 
 				new ComponentChain(
 					function() { return `1 3/4\" skid load with ${this.getTailHoseText(3)}, to ${this.elevationText}, with a 2nd hand line (high rise pack) also attached at the wye`; },
@@ -60,16 +60,17 @@ const GEVFC_ConfigurationsSets =
 							]);
 						wye.next = [handline1, handline2];
 						return chainStart;
-					})())/*,
+					})()),
 
 				new ComponentChain(
 					function() { return `1 3/4\" skid load with fog tip removed and ${this.getTailHoseText(3)}, to ${this.elevationText}`; },
 					ComponentChainLink.createStraightLineChain(
 					[
 						new Hose(3, 0),
+						new Elevation(0),
+						new SectionStart("the total skid load assembly by itself"),
 						new IntermediateAppliance(IntermediateAppliance.Types.Wye),
 						new Hose(1.75, 150),
-						new Elevation(0),
 						new Nozzle({ nozzleType: Nozzle.Types.HandSmooth, diameter: 15/16 })
 					])),
 
@@ -78,8 +79,9 @@ const GEVFC_ConfigurationsSets =
 					ComponentChainLink.createStraightLineChain(
 					[
 						new Hose(3, 0),
-						new Hose(2.5, 150),
 						new Elevation(0),
+						new SectionStart("the total skid load assembly by itself"),
+						new Hose(2.5, 150),
 						new Nozzle({ nozzleType: Nozzle.Types.HandSmooth, diameter: 1 + 1/8 })
 					])),
 
@@ -88,8 +90,9 @@ const GEVFC_ConfigurationsSets =
 					ComponentChainLink.createStraightLineChain(
 					[
 						new Hose(3, 0),
-						new Hose(2.5, 150),
 						new Elevation(0),
+						new SectionStart("the total skid load assembly by itself"),
+						new Hose(2.5, 150),
 						new Nozzle({ nozzleType: Nozzle.Types.HandSmooth, diameter: 1 + 1/4 })
 					])),
 
@@ -133,6 +136,7 @@ const GEVFC_ConfigurationsSets =
 						new Hose(5, 0),
 						new IntermediateAppliance(IntermediateAppliance.Types.Standpipe),
 						new Elevation(0),
+						new SectionStart("the total high rise pack by itself"),
 						new IntermediateAppliance(IntermediateAppliance.Types.Wye),
 						new Hose(1.75, 150),
 						new Nozzle({ nozzleType: Nozzle.Types.HandFogLowPressure, diameter: 1 + 1/2 })
@@ -176,7 +180,7 @@ const GEVFC_ConfigurationsSets =
 					[
 						new IntermediateAppliance(IntermediateAppliance.Types.MasterStreamDevice),
 						new Nozzle({ nozzleType: Nozzle.Types.MasterFog })						
-					]))*/
+					]))
 			])),
 
 	new ConfigurationsSet(
