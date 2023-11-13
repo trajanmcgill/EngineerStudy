@@ -435,8 +435,8 @@ class QuizApp
 						i = 0; // Skip back to the first question for this scenario
 					}
 				}
-			}
-		}
+			} // end while (i < nextProblem.value.standardQuestions.length)
+		} // end for loop iterating on problemGenerator.next()
 
 		// If this was a dynamic quiz-- one with realistic scenarios-- then generate a new set of realistic scenarios
 		// before this quiz repeats next.

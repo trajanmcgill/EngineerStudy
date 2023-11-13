@@ -43,7 +43,7 @@ const Component = (function()
 				fractionalText = `+${fractionalPart / 0.25}/4`;
 			else if (fractionalPart % 0.125 === 0)
 				fractionalText = `+${fractionalPart / 0.125}/8`;
-			else if (fractionalPart % 0.0625)
+			else if (fractionalPart % 0.0625 === 0)
 				fractionalText = `+${fractionalPart / 0.0625}/16`;
 			else
 				return `${diameter}\"`;
