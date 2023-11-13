@@ -16,7 +16,7 @@ const GEVFC_ConfigurationsSets =
 						new Hose(1.75, 200),
 						new Elevation(0),
 						new Nozzle({ nozzleType: Nozzle.Types.HandFogLowPressure, diameter: 1 + 1/2 })
-					])),
+					])),/*
 
 				new ComponentChain(
 					function() { return `2 1/2\" crosslay to ${this.elevationText}`; },
@@ -37,17 +37,19 @@ const GEVFC_ConfigurationsSets =
 						new Hose(1.75, 150),
 						new Elevation(0),
 						new Nozzle({ nozzleType: Nozzle.Types.HandFogLowPressure, diameter: 1 + 1/2 })
-					])),
-/*
+					])), */
+
 				new ComponentChain(
 					function() { return `1 3/4\" skid load with ${this.getTailHoseText(3)}, to ${this.elevationText}, with a 2nd hand line (high rise pack) also attached at the wye`; },
 					(function ()
 					{
 						let chainStart = new ComponentChainLink(new Hose(3, 0));
 						let elevation = chainStart.next = new ComponentChainLink(new Elevation(0));
-						let wye = elevation.next = new ComponentChainLink(new IntermediateAppliance(IntermediateAppliance.Types.Wye));
+						let dualHandLineSet = elevation.next = new ComponentChainLink(new SectionStart("both hand lines together, plus the wye"));
+						let wye = dualHandLineSet.next = new ComponentChainLink(new IntermediateAppliance(IntermediateAppliance.Types.Wye));
 						let handline1 = ComponentChainLink.createStraightLineChain(
 							[
+								new SectionStart("each entire individual hand line to this point"),
 								new Hose(1.75, 150),
 								new Nozzle({ nozzleType: Nozzle.Types.HandFogLowPressure, diameter: 1 + 1/2 })
 							]);
@@ -58,8 +60,8 @@ const GEVFC_ConfigurationsSets =
 							]);
 						wye.next = [handline1, handline2];
 						return chainStart;
-					})()),
-*/
+					})())/*,
+
 				new ComponentChain(
 					function() { return `1 3/4\" skid load with fog tip removed and ${this.getTailHoseText(3)}, to ${this.elevationText}`; },
 					ComponentChainLink.createStraightLineChain(
@@ -174,7 +176,7 @@ const GEVFC_ConfigurationsSets =
 					[
 						new IntermediateAppliance(IntermediateAppliance.Types.MasterStreamDevice),
 						new Nozzle({ nozzleType: Nozzle.Types.MasterFog })						
-					]))
+					]))*/
 			])),
 
 	new ConfigurationsSet(

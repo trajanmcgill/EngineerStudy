@@ -68,6 +68,8 @@ const SectionStart = (function()
 			const pressureContributionFunction = () => 0;
 
 			super(Component.ComponentTypes.SectionStart, descriptionFunction, pressureContributionFunction);
+
+			this.#sectionName = sectionName;
 		}
 
 		duplicate(changes = {})

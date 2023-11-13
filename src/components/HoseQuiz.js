@@ -8,6 +8,8 @@ import { InputCancellation, UserPromptTypes, FormatTypes, TextFormat } from "./U
 const Version = "1.1.0";
 const TimerRegularity = 250; // update the timer view every 0.25 seconds
 const WrongAnswersBeforeWalkThrough = 3;
+const WalkThroughQuestionColor_FlowRate = "aquamarine";
+const WalkThroughQuestionColor_Pressure = "coral";
 
 
 const EvaluationResultType = Object.freeze(
@@ -111,21 +113,47 @@ class Quiz
 				let pressureQuestionText = null;
 				if (componentType === Component.ComponentTypes.Nozzle)
 				{
-					if (this.#flowQuestion)
-					{
-						supplementaryQuestions.push(
-							new Question(`For ${componentDescription}, what is the flow rate (gallons per minute)`, chainLink.flowRate, { textColor: "aquamarine" }));
-					}
-					pressureQuestionText = `For ${componentDescription} at ${chainLink.flowRate} g.p.m., what is the pressure needed (p.s.i.)`;
+					supplementaryQuestions.push(
+						new Question(
+							`For ${componentDescription}, what is the flow rate (gallons per minute)`,
+							chainLink.flowRate,
+							{ textColor: WalkThroughQuestionColor_FlowRate }));
+					supplementaryQuestions.push(
+						new Question(
+							`For ${componentDescription} at ${chainLink.flowRate} g.p.m., what is the pressure needed (p.s.i.)`,
+							chainLink.pressureDelta,
+							{ textColor: WalkThroughQuestionColor_Pressure }));
 				}
 				else if (componentType === Component.ComponentTypes.Elevation)
-					pressureQuestionText = `For going to ${componentDescription}, how much pressure is added (p.s.i.)`;
+				{
+					supplementaryQuestions.push(
+						new Question(
+							`For going to ${componentDescription}, how much pressure is added (p.s.i.)`,
+							chainLink.pressureDelta,
+							{ textColor: WalkThroughQuestionColor_Pressure }));
+				}
 				else if (componentType === Component.ComponentTypes.Hose || componentType === Component.ComponentTypes.IntermediateAppliance)
-					pressureQuestionText = `For ${componentDescription} at ${chainLink.flowRate} g.p.m., what is the friction loss (p.s.i.)`;
-
-				if (this.#pressureQuestion && pressureQuestionText !== null)
-					supplementaryQuestions.push(new Question(pressureQuestionText, chainLink.pressureDelta, { textColor: "coral" }));
-			}
+				{
+					supplementaryQuestions.push(
+						new Question(
+							`For ${componentDescription} at ${chainLink.flowRate} g.p.m., what is the friction loss (p.s.i.)`,
+							chainLink.pressureDelta,
+							{ textColor: WalkThroughQuestionColor_Pressure }));
+				}
+				else if (componentType === Component.ComponentTypes.SectionStart)
+				{
+					supplementaryQuestions.push(
+						new Question(
+							`So for ${componentDescription}, what is the total flow rate (gallons per minute)`,
+							chainLink.flowRate,
+							{ textColor: WalkThroughQuestionColor_FlowRate, textStyles: [FormatTypes.Bold] }));
+					supplementaryQuestions.push(
+						new Question(
+							`And for ${componentDescription} at ${chainLink.flowRate} g.p.m., what is the total pressure needed (p.s.i.)`,
+							chainLink.totalNeededPressure,
+							{ textColor: WalkThroughQuestionColor_Pressure, textStyles: [FormatTypes.Bold] }));
+				}
+			} // end for (const chainLink of allChainLinks)
 
 			let problemDefinition =
 			{
@@ -434,7 +462,7 @@ class QuizApp
 						this.UI.writeLine("Walking through individual components...");
 						for (const supplementaryQuestion of nextProblem.value.supplementaryQuestions)
 							await this.#askQuestion(supplementaryQuestion, false, false, 1);
-						this.UI.writeLine(`Putting it all back together...Totals for ${nextProblem.value.scenario}:`);
+						this.UI.writeLine(`Putting it all back together...\nTotals for ${nextProblem.value.scenario}:`);
 						i = 0; // Skip back to the first question for this scenario
 					}
 				}
