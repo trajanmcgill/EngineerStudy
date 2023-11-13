@@ -2,7 +2,7 @@ import { Component } from "./engineering/Component";
 import { ComponentChain } from "./engineering/ComponentChain";
 import { ConfigurationsSet } from "./engineering/ConfigurationsSet";
 import { GEVFC_ConfigurationsSets } from "./GEVFC/GEVFC_Configurations";
-import { UserPromptTypes, FormatTypes, TextFormat } from "./UI";
+import { InputCancellation, UserPromptTypes, FormatTypes, TextFormat } from "./UI";
 
 
 const Version = "1.1.0";
@@ -178,7 +178,7 @@ class QuizApp
 				GEVFC_ConfigurationsSets.getById("NOZZLES_ALONE"),
 				false,
 				{ flowQuestion: "Flow rate (gallons per minute)" } ),
-
+	
 			new Quiz(
 				"BASE_FRICTION_LOSS_ITEMS_COMMON",
 				"Base Friction Losses (Common)",
@@ -229,9 +229,12 @@ class QuizApp
 			try { await this.#offerQuiz(); }
 			catch (err)
 			{
-				this.UI.writeLine(`** Error: ${err.message} **`, new TextFormat({ textColor: "red" }));
 				this.UI.writeLine("** Ending quiz. **\n", new TextFormat({ textColor: "#59cd90" }));
-				break;
+				if (!(err instanceof InputCancellation))
+				{
+					this.UI.writeLine(`** Error: ${err.message} **`, new TextFormat({ textColor: "red" }));
+					break;
+				}
 			}
 		}
 	}

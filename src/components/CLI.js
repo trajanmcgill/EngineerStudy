@@ -1,4 +1,4 @@
-import { UserPromptTypes, FormatTypes } from "./UI";
+import { InputCancellation, UserPromptTypes, FormatTypes } from "./UI";
 
 
 class CLI
@@ -83,7 +83,7 @@ class CLI
 		{
 			this.readResolveFunc = null;
 			this.readFailureFunc = null;
-			failureFunc();
+			failureFunc(new InputCancellation("Input Canceled"));
 		}
 	}
 

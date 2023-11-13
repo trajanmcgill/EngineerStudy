@@ -16,6 +16,12 @@ const FormatTypes = Object.freeze(
 });
 
 
+class InputCancellation extends Error
+{
+	constructor(message) { super(message); }
+}
+
+
 class TextFormat
 {
 	#textStyles;
@@ -38,4 +44,4 @@ class TextFormat
 }
 
 
-export { UserPromptTypes, FormatTypes, TextFormat };
+export { UserPromptTypes, FormatTypes, InputCancellation, TextFormat };
