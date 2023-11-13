@@ -63,20 +63,23 @@ class Quiz
 	#pressureQuestion;
 	configurationSet;
 	#isDynamic;
+	#doWalkThrough;
 
 
-	constructor(id, description, configurationSet, isDynamic, { flowQuestion, pressureQuestion })
+	constructor(id, description, configurationSet, isDynamic, doWalkThrough, { flowQuestion, pressureQuestion })
 	{
 		this.id = id;
 		this.description = description;
 		this.configurationSet = configurationSet;
 		this.#isDynamic = isDynamic;
+		this.#doWalkThrough = doWalkThrough;
 		this.#flowQuestion = flowQuestion;
 		this.#pressureQuestion = pressureQuestion;
 	}
 
 
 	get isDynamic() { return this.#isDynamic; }
+	get doWalkThrough() { return this.#doWalkThrough; }
 
 
 	*getProblems()
@@ -104,56 +107,58 @@ class Quiz
 			if (this.#pressureQuestion)
 				standardQuestions.push(new Question(this.#pressureQuestion, currentConfiguration.totalNeededPressure));
 
-			for (const chainLink of allChainLinks)
+			if (this.#doWalkThrough)
 			{
-				const component = chainLink.component;
-				const componentType = component.componentType;
-				const componentDescription = component.description;
+				for (const chainLink of allChainLinks)
+				{
+					const component = chainLink.component;
+					const componentType = component.componentType;
+					const componentDescription = component.description;
 
-				let pressureQuestionText = null;
-				if (componentType === Component.ComponentTypes.Nozzle)
-				{
-					supplementaryQuestions.push(
-						new Question(
-							`For ${componentDescription}, what is the flow rate (gallons per minute)`,
-							chainLink.flowRate,
-							{ textColor: WalkThroughQuestionColor_FlowRate }));
-					supplementaryQuestions.push(
-						new Question(
-							`For ${componentDescription} at ${chainLink.flowRate} g.p.m., what is the pressure needed (p.s.i.)`,
-							chainLink.pressureDelta,
-							{ textColor: WalkThroughQuestionColor_Pressure }));
-				}
-				else if (componentType === Component.ComponentTypes.Elevation)
-				{
-					supplementaryQuestions.push(
-						new Question(
-							`For going to ${componentDescription}, how much pressure is added (p.s.i.)`,
-							chainLink.pressureDelta,
-							{ textColor: WalkThroughQuestionColor_Pressure }));
-				}
-				else if (componentType === Component.ComponentTypes.Hose || componentType === Component.ComponentTypes.IntermediateAppliance)
-				{
-					supplementaryQuestions.push(
-						new Question(
-							`For ${componentDescription} at ${chainLink.flowRate} g.p.m., what is the friction loss (p.s.i.)`,
-							chainLink.pressureDelta,
-							{ textColor: WalkThroughQuestionColor_Pressure }));
-				}
-				else if (componentType === Component.ComponentTypes.SectionStart)
-				{
-					supplementaryQuestions.push(
-						new Question(
-							`So for ${componentDescription}, what is the total flow rate (gallons per minute)`,
-							chainLink.flowRate,
-							{ textColor: WalkThroughQuestionColor_FlowRate, textStyles: [FormatTypes.Bold] }));
-					supplementaryQuestions.push(
-						new Question(
-							`And for ${componentDescription} at ${chainLink.flowRate} g.p.m., what is the total pressure needed (p.s.i.)`,
-							chainLink.totalNeededPressure,
-							{ textColor: WalkThroughQuestionColor_Pressure, textStyles: [FormatTypes.Bold] }));
-				}
-			} // end for (const chainLink of allChainLinks)
+					if (componentType === Component.ComponentTypes.Nozzle)
+					{
+						supplementaryQuestions.push(
+							new Question(
+								`For ${componentDescription}, what is the flow rate (gallons per minute)`,
+								chainLink.flowRate,
+								{ textColor: WalkThroughQuestionColor_FlowRate }));
+						supplementaryQuestions.push(
+							new Question(
+								`For ${componentDescription} at ${chainLink.flowRate} g.p.m., what is the pressure needed (p.s.i.)`,
+								chainLink.pressureDelta,
+								{ textColor: WalkThroughQuestionColor_Pressure }));
+					}
+					else if (componentType === Component.ComponentTypes.Elevation)
+					{
+						supplementaryQuestions.push(
+							new Question(
+								`For going to ${componentDescription}, how much pressure is added (p.s.i.)`,
+								chainLink.pressureDelta,
+								{ textColor: WalkThroughQuestionColor_Pressure }));
+					}
+					else if (componentType === Component.ComponentTypes.Hose || componentType === Component.ComponentTypes.IntermediateAppliance)
+					{
+						supplementaryQuestions.push(
+							new Question(
+								`For ${componentDescription} at ${chainLink.flowRate} g.p.m., what is the friction loss (p.s.i.)`,
+								chainLink.pressureDelta,
+								{ textColor: WalkThroughQuestionColor_Pressure }));
+					}
+					else if (componentType === Component.ComponentTypes.SectionStart)
+					{
+						supplementaryQuestions.push(
+							new Question(
+								`So for ${componentDescription}, what is the total flow rate (gallons per minute)`,
+								chainLink.flowRate,
+								{ textColor: WalkThroughQuestionColor_FlowRate, textStyles: [FormatTypes.Bold] }));
+						supplementaryQuestions.push(
+							new Question(
+								`And for ${componentDescription} at ${chainLink.flowRate} g.p.m., what is the total pressure needed (p.s.i.)`,
+								chainLink.totalNeededPressure,
+								{ textColor: WalkThroughQuestionColor_Pressure, textStyles: [FormatTypes.Bold] }));
+					}
+				} // end for (const chainLink of allChainLinks)
+			} // end if (this.#doWalkThrough)
 
 			let problemDefinition =
 			{
@@ -198,12 +203,14 @@ class QuizApp
 				"GEVFC Basic Configurations (Starting Points)",
 				GEVFC_ConfigurationsSets.getById("GEVFC_BASE_CONFIGURATIONS"),
 				false,
+				true,
 				{ flowQuestion: "Flow rate (gallons per minute)", pressureQuestion: "Discharge pressure (p.s.i.)" } ),
 
 			new Quiz(
 				"NOZZLES_ALONE",
 				"Nozzle Flow Rates",
 				GEVFC_ConfigurationsSets.getById("NOZZLES_ALONE"),
+				false,
 				false,
 				{ flowQuestion: "Flow rate (gallons per minute)" } ),
 	
@@ -212,12 +219,14 @@ class QuizApp
 				"Base Friction Losses (Common)",
 				GEVFC_ConfigurationsSets.getById("BASE_FRICTION_LOSS_ITEMS_COMMON"),
 				false,
+				false,
 				{ pressureQuestion: "Friction loss (p.s.i.)" } ),
 
 			new Quiz(
 				"GEVFC_REALISTIC_SCENARIOS",
 				"GEVFC Basic Configurations (Realistic Scenarios)",
 				this.#buildRealisticConfigurationsSet(GEVFC_ConfigurationsSets.getById("GEVFC_BASE_CONFIGURATIONS")),
+				true,
 				true,
 				{ flowQuestion: "Flow rate (gallons per minute)", pressureQuestion: "Discharge pressure (p.s.i.)" })
 			];
@@ -448,23 +457,34 @@ class QuizApp
 			while (i < nextProblem.value.standardQuestions.length)
 			{
 				let question = nextProblem.value.standardQuestions[i];
-				let isAnsweredCorrectly = await this.#askQuestion(question, false, true);
-				if (isAnsweredCorrectly)
+				let isAnsweredCorrectly = false;
+
+				if (this.currentQuiz.doWalkThrough)
 				{
-					incorrectCount = 0;
-					i++;
+					isAnsweredCorrectly = await this.#askQuestion(question, false, true);
+					if (isAnsweredCorrectly)
+					{
+						incorrectCount = 0;
+						i++;
+					}
+					else
+					{
+						incorrectCount++;
+						if (incorrectCount >= WrongAnswersBeforeWalkThrough)
+						{
+							this.UI.writeLine("Walking through individual components...");
+							for (const supplementaryQuestion of nextProblem.value.supplementaryQuestions)
+								await this.#askQuestion(supplementaryQuestion, false, false, 1);
+							this.UI.writeLine(`Putting it all back together...\nTotals for ${nextProblem.value.scenario}:`);
+							incorrectCount = 0; // Reset counter of wrong answers
+							i = 0; // Skip back to the first question for this scenario
+						}
+					}
 				}
 				else
 				{
-					incorrectCount++;
-					if (incorrectCount >= WrongAnswersBeforeWalkThrough)
-					{
-						this.UI.writeLine("Walking through individual components...");
-						for (const supplementaryQuestion of nextProblem.value.supplementaryQuestions)
-							await this.#askQuestion(supplementaryQuestion, false, false, 1);
-						this.UI.writeLine(`Putting it all back together...\nTotals for ${nextProblem.value.scenario}:`);
-						i = 0; // Skip back to the first question for this scenario
-					}
+					await this.#askQuestion(question, false, false);
+					i++;
 				}
 			} // end while (i < nextProblem.value.standardQuestions.length)
 		} // end for loop iterating on problemGenerator.next()
