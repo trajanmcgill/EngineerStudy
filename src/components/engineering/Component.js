@@ -104,9 +104,15 @@ const Nozzle = (function()
 		}),
 		HandFogConventional_TrashLine: Object.freeze(
 		{
-			description: "fog nozzle (hand line, conventional, GEVFC trash line setting)",
+			description: "fog nozzle (hand line, conventional, variable gallonage, GEVFC trash line setting)",
 			nozzlePressure: 100,
 			flowRates: Object.freeze([{ diameter: 1+1/2, flowRate: 125 }])
+		}),
+		HandFogConventional_SM20F: Object.freeze(
+		{
+			description: "fog nozzle (Select-o-matic SM-20F)",
+			nozzlePressure: 100,
+			flowRates: Object.freeze([{ diameter: 1+1/2, flowRate: 200 }])
 		}),
 		HandFogLowPressure: Object.freeze(
 		{

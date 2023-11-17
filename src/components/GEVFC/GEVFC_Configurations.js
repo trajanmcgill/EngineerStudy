@@ -113,13 +113,21 @@ const GEVFC_ConfigurationsSets =
 					])),
 	
 				new ComponentChain(
-					"Trash line (default setting)",
+					"Trash line, lead engine (default setting)",
 					ComponentChainLink.createStraightLineChain(
 					[
 						new Hose(1.75, 100),
 						new Nozzle({ nozzleType: Nozzle.Types.HandFogConventional_TrashLine, diameter: 1 + 1/2 })
 					])),
 										
+				new ComponentChain(
+					"Trash line, backup engine",
+					ComponentChainLink.createStraightLineChain(
+					[
+						new Hose(1.75, 100),
+						new Nozzle({ nozzleType: Nozzle.Types.HandFogConventional_SM20F, diameter: 1 + 1/2 })
+					])),
+
 				new ComponentChain(
 					"High-rise pack by itself",
 					ComponentChainLink.createStraightLineChain(
@@ -189,11 +197,15 @@ const GEVFC_ConfigurationsSets =
 		Object.freeze(
 			[
 				new ComponentChain(
-					"1 3/4\" hand line fog nozzle (trash line, default setting)",
+					"1 3/4\" hand line fog nozzle (lead engine trash line, default setting)",
 					ComponentChainLink.createStraightLineChain(
 						[new Nozzle({ nozzleType: Nozzle.Types.HandFogConventional_TrashLine, diameter: 1 + 1/2 })])),
 				new ComponentChain(
-					"1 3/4\" hand line fog nozzle (other than trash line)",
+					"1 3/4\" hand line fog nozzle (SM-20F as on backup engine trash line)",
+					ComponentChainLink.createStraightLineChain(
+						[new Nozzle({ nozzleType: Nozzle.Types.HandFogConventional_SM20F, diameter: 1 + 1/2 })])),
+				new ComponentChain(
+					"1 3/4\" hand line fog nozzle (as on crosslays and skid loads)",
 					ComponentChainLink.createStraightLineChain(
 						[new Nozzle({ nozzleType: Nozzle.Types.HandFogLowPressure, diameter: 1 + 1/2 })])),
 				new ComponentChain(
